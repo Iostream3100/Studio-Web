@@ -1,0 +1,28 @@
+<section>
+    <!-- <ng-template *ngIf="b64Inputs$ | async as b64Inputs"> -->
+    <div class="container">
+        <div class="row">
+            <div class="col-11">xf
+                <h2 class="subtitle">
+                    Congratulations! Here's your ReadAlong!
+
+                </h2>
+            </div>
+            <div class="col-1">
+                <button color="primary" (click)="download()" mat-mini-fab aria-label="Example icon button with a download icon">
+                <mat-icon>file_download</mat-icon>
+              </button>
+            </div>
+        </div>
+        <span id="spanid" #pageTitle (blur)="setTitle(pageTitle.innerText)" contentEditable="true" slot="read-along-page-title">{{ this.getTitle() }}</span>
+        <div id="divid" class="row" *ngIf="b64Inputs">
+            <read-along text="{{b64Inputs[1]}}" alignment="{{b64Inputs[2] }}" audio="{{b64Inputs[0]}}" class="hydrated">
+                    <span id="spanid1" #title (blur)="slots.title=title.innerText" contentEditable="true" slot="read-along-header">{{ slots.title }}</span>
+                    <span id="spanid2" #subtitle (blur)="slots.subtitle=subtitle.innerText" contentEditable="true" slot="read-along-subheader">{{ slots.subtitle }}</span>
+            </read-along>
+        </div>
+        <div class="row">
+        </div>
+    </div>
+    <!-- </ng-template> -->
+</section>
