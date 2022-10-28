@@ -1,12 +1,11 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-// add By to query 
-import { By } from '@angular/platform-browser'
+
+import {By} from '@angular/platform-browser'
 
 import { MaterialModule } from "../material.module";
 import { DemoComponent } from "./demo.component";
 
-// ==== check create or not and defalut value ===== 
 describe("DemoComponent", () => {
   let component: DemoComponent;
   let fixture: ComponentFixture<DemoComponent>;
@@ -36,16 +35,16 @@ describe("DemoComponent", () => {
   });
 
   it(`should have as page title 'ReadAlong Studio'`, () => {
-    expect(component.getTitle()).toEqual("ReadAlong Studio");
+    expect(component.slots.pageTitle).toEqual("ReadAlong Studio");
   });
-
 });
 
-// ================test page title=================
-// === test editable test page before edited ===
-describe("DemoComponent-pagetitle-defalutvalue", () => {
+
+describe("DemoComponent-pagetitle-editrandom-special-characters", () => {
   let component: DemoComponent;
   let fixture: ComponentFixture<DemoComponent>;
+  let car: string = '!"§$%&/()=?\u{20ac}';
+  let res: string = car.substring(Math.floor(car.length * Math.random()), 1);
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -56,154 +55,27 @@ describe("DemoComponent-pagetitle-defalutvalue", () => {
 
     fixture = TestBed.createComponent(DemoComponent);
     component = fixture.componentInstance;
+    component.titleService.setTitle("new Page title");
     fixture.detectChanges();
   });
 
-  it("test editable defalut page title ", () => {
-     const { debugElement } = fixture;
-     const title1 = debugElement.query(By.css('#spanid')).nativeElement;
-     expect(title1.textContent).toContain('ReadAlong Studio');
-  });
-});
-
-// === test editable test page after edited ===
-describe("DemoComponent-pagetitle-edittvalue", () => {
-  let component: DemoComponent;
-  let fixture: ComponentFixture<DemoComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [MaterialModule],
-      declarations: [DemoComponent],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
-    
-    fixture = TestBed.createComponent(DemoComponent);
-    component = fixture.componentInstance;
-    component.setTitle("new editable Page");
-    fixture.detectChanges();
-
-  });
-
-  it("test editable page title after edit ", () => {
+  it("test editable page title including special characters", () => {
     const { debugElement } = fixture;
-    const title1 = debugElement.query(By.css('#spanid')).nativeElement;
-    expect(title1.textContent).toContain('new editable Page');
- });
-});
+    // const title1 = debugElement.query(By.css("#pageTitle")).nativeElement;
+    // expect(title1.textContent).toContain("new editable Page" + res);
+    // expect(fixture.nativeElement.querySelector('#test1').innerText).toBeNull;
+    const formData = fixture.debugElement.query(By.css('#test1'));
+    formData.nativeElement.value = "new";
+    formData.nativeElement.dispatchEvent(new Event('input'));
 
+    expect(formData.nativeElement.value).toBe("new");
 
-// === test editable test page after edited empty value ===
-describe("DemoComponent-pagetitle-editempty", () => {
-  let component: DemoComponent;
-  let fixture: ComponentFixture<DemoComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [MaterialModule],
-      declarations: [DemoComponent],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
-    
-    fixture = TestBed.createComponent(DemoComponent);
-    component = fixture.componentInstance;
-    component.setTitle("");
-    fixture.detectChanges();
 
   });
 
-  it("test editable page title after edit ", () => {
-    const { debugElement } = fixture;
-    const title1 = debugElement.query(By.css('#spanid')).nativeElement;
-    expect(title1.textContent).toBeNull;
- });
+  
 });
 
-// === test editable test page after twice edited ====
-describe("DemoComponent-pagetitle-edittwice", () => {
-  let component: DemoComponent;
-  let fixture: ComponentFixture<DemoComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [MaterialModule],
-      declarations: [DemoComponent],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
-    
-    fixture = TestBed.createComponent(DemoComponent);
-    component = fixture.componentInstance;
-    component.setTitle("new editable Page");
-    component.setTitle("new editable Page 2");
-    fixture.detectChanges();
-
-  });
-
-  it("test editable page title after twice edit ", () => {
-    const { debugElement } = fixture;
-    const title1 = debugElement.query(By.css('#spanid')).nativeElement;
-    expect(title1.textContent).toContain('new editable Page 2');
- });
-});
-
-// === test editable test page more than once ====
-describe("DemoComponent-pagetitle-editmutiplytime", () => {
-  let component: DemoComponent;
-  let fixture: ComponentFixture<DemoComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [MaterialModule],
-      declarations: [DemoComponent],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
-    
-    fixture = TestBed.createComponent(DemoComponent);
-    component = fixture.componentInstance;
-    for(let i = 1; i <=50 ; i++ ){
-      component.setTitle("new editable Page " + i);
-    }
-
-    fixture.detectChanges();
-
-  });
-
-  it("test editable page title more than once", () => {
-    const { debugElement } = fixture;
-    const title1 = debugElement.query(By.css('#spanid')).nativeElement;
-    expect(title1.textContent).toContain('new editable Page 50');
- });
-});
-
-// ================test title and subtitle=================
-// ==== test the element(titile and subtitle) is hidden ====
-// check *ngIf is not visable 
-describe("DemoComponent-element-hidden", () => {
-  let component: DemoComponent;
-  let fixture: ComponentFixture<DemoComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [MaterialModule],
-      declarations: [DemoComponent],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(DemoComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it("test ifng closed", () => {
-     
-     const { debugElement } = fixture;
-     const title1 = debugElement.query(By.css('#divid'));
-     expect(title1).toBeNull;
-    //  console.log("======test=====");
-    //  console.log(title1);
-  });
-});
- 
 // ==== test the element is not hidden and defalut value ====
 // * ngif visiable
 describe("DemoComponent-title-subtitle-defalut", () => {
@@ -225,19 +97,18 @@ describe("DemoComponent-title-subtitle-defalut", () => {
      component.b64Inputs = ["true"]
      fixture.detectChanges();
      const { debugElement } = fixture;
-     const title1 = debugElement.query(By.css('#spanid1')).nativeElement;
-     expect(title1.textContent).toContain('Title');
+     const title1 = debugElement.query(By.css('#divid1')).nativeElement;
+     expect(title1.textContent).toBeNull;
   });
 
   it("test deflaut subTitle", () => {
     component.b64Inputs = ["true"]
     fixture.detectChanges();
     const { debugElement } = fixture;
-    const title1 = debugElement.query(By.css('#spanid2')).nativeElement;
-    expect(title1.textContent).toContain('Subtitle');
+    const title1 = debugElement.query(By.css('#divid2')).nativeElement;
+    expect(title1.textContent).toBeNull;
  });
 });
-
 
 // ==== test the element is not hidden and edit value ====
 // * ngif visiable
@@ -256,24 +127,24 @@ describe("DemoComponent-title-subtitle-edit", () => {
     component = fixture.componentInstance;
     component.b64Inputs = ["true"];
     component.slots.title = "new title";
-    component.slots.subtitle = "new sub title";
-
     fixture.detectChanges();
 
   });
 
   it("test edit title", () => {
      const { debugElement } = fixture;
-     const title1 = debugElement.query(By.css('#spanid1')).nativeElement;
-     expect(component.slots.title).toEqual('new title');
-     expect(title1.textContent).toEqual('new title');
+     const title1 = fixture.debugElement.query(By.css('#divid1'));
+     title1.nativeElement.value = "new title";
+     title1.nativeElement.dispatchEvent(new Event('input'));
+     expect(title1.nativeElement.value).toBe("new title");
   });
-
-  it("test edit sub title", () => {
+  
+  it("test edit title", () => {
     const { debugElement } = fixture;
-    const title1 = debugElement.query(By.css('#spanid2')).nativeElement;
-    expect(component.slots.subtitle).toEqual('new sub title');
-    expect(title1.textContent).toEqual('new sub title');
+    const title1 = fixture.debugElement.query(By.css('#divid2'));
+    title1.nativeElement.value = "new sub title";
+    title1.nativeElement.dispatchEvent(new Event('input'));
+    expect(title1.nativeElement.value).toBe("new sub title");
  });
 });
 
@@ -303,23 +174,26 @@ describe("DemoComponent-title-subtitle-editempty", () => {
   });
 
   it("test edit title", () => {
-     const { debugElement } = fixture;
-     const title1 = debugElement.query(By.css('#spanid1')).nativeElement;
-     expect(component.slots.title).toBeNull;
-     expect(title1.textContent).toBeNull;
-    //  expect(component.slots.title).toEqual('');
-    //  expect(title1.textContent).toEqual('');
-  });
-
-  it("test edit sub title", () => {
     const { debugElement } = fixture;
-    const title1 = debugElement.query(By.css('#spanid2')).nativeElement;
-    expect(component.slots.subtitle).toBeNull;
-    expect(title1.textContent).toBeNull;
-    // expect(component.slots.subtitle).toEqual('');
-    // expect(title1.textContent).toEqual('');
+    const title1 = fixture.debugElement.query(By.css('#divid1'));
+    title1.nativeElement.value = "";
+    title1.nativeElement.dispatchEvent(new Event('input'));
+    expect(title1.nativeElement.value).toBeNull;
  });
+
+  
+
+ it("test edit title", () => {
+  const { debugElement } = fixture;
+  const title1 = fixture.debugElement.query(By.css('#divid2'));
+  title1.nativeElement.value = "";
+  title1.nativeElement.dispatchEvent(new Event('input'));
+  expect(title1.nativeElement.value).toBeNull;
 });
+
+
+});
+
 
 // ==== test the element is not hidden and edit value more than once====
 // * ngif visiable
@@ -337,30 +211,71 @@ describe("DemoComponent-title-subtitle-editmutiplytime", () => {
     fixture = TestBed.createComponent(DemoComponent);
     component = fixture.componentInstance;
     component.b64Inputs = ["true"];
- 
-    for(let i = 1; i <=50 ; i++ ){
-      component.slots.title = "title " + i;
-    }
-  
-    for(let i = 1; i <=50 ; i++ ){
-      component.slots.subtitle = "sub title " + i;
-    }
 
+  
     fixture.detectChanges();
 
   });
 
   it("test edit title more than once", () => {
-     const { debugElement } = fixture;
-     const title1 = debugElement.query(By.css('#spanid1')).nativeElement;
-     expect(component.slots.title).toEqual('title 50');
-     expect(title1.textContent).toEqual('title 50');
+    const title1 = fixture.debugElement.query(By.css('#divid1'));
+    for(let i = 1; i <=50 ; i++ ){
+      title1.nativeElement.value = "title " + i;
+    }
+
+    title1.nativeElement.dispatchEvent(new Event('input'));
+    expect(title1.nativeElement.value).toBe("title 50");
   });
 
   it("test edit sub title", () => {
-    const { debugElement } = fixture;
-    const title1 = debugElement.query(By.css('#spanid2')).nativeElement;
-    expect(component.slots.subtitle).toEqual('sub title 50');
-    expect(title1.textContent).toEqual('sub title 50');
+    const title1 = fixture.debugElement.query(By.css('#divid2'));
+    for(let i = 1 ; i <=50 ; i++){
+      title1.nativeElement.value = "sub title " + i;
+    }
+  
+    title1.nativeElement.dispatchEvent(new Event('input'));
+    expect(title1.nativeElement.value).toBe("sub title 50");
  });
 });
+
+// === test editable title and sub title including some special characters ====
+// * ngif visiable
+describe("DemoComponent-title-subtitle-edit", () => {
+  let component: DemoComponent;
+  let fixture: ComponentFixture<DemoComponent>;
+  let car: string = '!"§$%&/()=?\u{20ac}';
+  let res: string = car.substring(Math.floor(car.length * Math.random()), 1);
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [MaterialModule],
+      declarations: [DemoComponent],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(DemoComponent);
+    component = fixture.componentInstance;
+    component.b64Inputs = ["true"];
+    component.slots.title = "new title";
+    fixture.detectChanges();
+
+  });
+
+  it("test edit title", () => {
+     const { debugElement } = fixture;
+     const title1 = fixture.debugElement.query(By.css('#divid1'));
+     title1.nativeElement.value = "new title" + res;
+     title1.nativeElement.dispatchEvent(new Event('input'));
+     expect(title1.nativeElement.value).toBe("new title" + res);
+  });
+  
+  
+  it("test edit title", () => {
+    const { debugElement } = fixture;
+    const title1 = fixture.debugElement.query(By.css('#divid2'));
+    title1.nativeElement.value = "new sub title" + res;
+    title1.nativeElement.dispatchEvent(new Event('input'));
+    expect(title1.nativeElement.value).toBe("new sub title" + res);
+ });
+});
+
