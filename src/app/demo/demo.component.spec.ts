@@ -275,7 +275,8 @@ describe("DemoComponent-title-subtitle-edit", () => {
     const title1 = fixture.debugElement.query(By.css('#divid2'));
     title1.nativeElement.value = "new sub title" + res;
     title1.nativeElement.dispatchEvent(new Event('input'));
-    expect(title1.nativeElement.value).toBe("new sub title" + res);
+    expect(title1.nativeElement.value).toBe("new sub title" + res);】
+    
  });
 });
 
