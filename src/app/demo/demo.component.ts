@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { Title } from "@angular/platform-browser";
+import { B64Service } from "../b64.service";
 
 @Component({
   selector: "app-demo",
@@ -9,14 +10,13 @@ import { Title } from "@angular/platform-browser";
 export class DemoComponent implements OnInit {
   @Input() b64Inputs: string[];
 
-
   slots: any = {
     title: "Title",
     subtitle: "Subtitle",
     pageTitle: "ReadAlong Studio",
   };
 
-  constructor(public titleService: Title) {
+  constructor(public titleService: Title, private b64Service: B64Service) {
     titleService.setTitle(this.slots.pageTitle);
   }
 
@@ -26,8 +26,20 @@ export class DemoComponent implements OnInit {
     this.titleService.setTitle(titleValue);
   }
 
+  ngOnInit(): void {
+    var textHTML = this.b64Service.b64_to_utf8(
+      this.b64Inputs[1].substring(this.b64Inputs[1].indexOf(",") + 1)
+    );
+    const firstSentenceEndIndex = textHTML.indexOf("</s>") + 4;
 
-  ngOnInit(): void {}
+    textHTML =
+      textHTML.slice(0, firstSentenceEndIndex) +
+      '<label for="name">Name (4 to 8 characters):</label>\n' +
+      textHTML.slice(firstSentenceEndIndex);
+    this.b64Inputs[1] =
+      this.b64Inputs[1].slice(0, this.b64Inputs[1].indexOf(",") + 1) +
+      this.b64Service.utf8_to_b64(textHTML);
+  }
 
   imgBase64: any = null;
 
@@ -87,6 +99,17 @@ export class DemoComponent implements OnInit {
     console.log(this.slots);
     console.log("image b64: ");
     console.log(this.imgBase64);
+    // @ts-ignore
+    const readalongRoot: any = document.querySelector("read-along").shadowRoot;
+    console.log("shadow root: ", readalongRoot);
+    const pages = readalongRoot.querySelectorAll(".page");
+    console.log("page:", pages);
+    pages.forEach((page: any) => {
+      const p = document.createElement("div");
+      p.innerHTML = '<input type="file" (change)="picked($event)" type="file">';
+
+      page.append(p);
+    });
     var element = document.createElement("a");
     let blob = new Blob(
       [
