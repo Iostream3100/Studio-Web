@@ -29,7 +29,27 @@
             </div>
             
         </div>
-        
+
+        <form [formGroup]="imageUrlForm" (ngSubmit)="onUploadImage()">
+            <h2>Upload image to read-along component</h2>
+            <div>
+                <label for="url">
+                    url
+                </label>
+                <input id="url" type="text" formControlName="url">
+            </div>
+
+            <div>
+                <label for="pageIndex">
+                    pageIndex
+                </label>
+                <input id="pageIndex" type="number" formControlName="pageIndex">
+            </div>
+
+            <button class="button" type="submit">Upload</button>
+
+        </form>
+
         <div class="row" *ngIf="b64Inputs">
             <read-along text="{{b64Inputs[1]}}" alignment="{{b64Inputs[2] }}" audio="{{b64Inputs[0]}}" class="hydrated">
                 <input
