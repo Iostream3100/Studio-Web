@@ -30,6 +30,8 @@
             
         </div>
 
+        <button (click)="addUploadImageButton()">Add Upload Event Listener</button>
+
         <form [formGroup]="imageUrlForm" (ngSubmit)="onUploadImage()">
             <h2>Upload image to read-along component</h2>
             <div>
