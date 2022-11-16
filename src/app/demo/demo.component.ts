@@ -222,5 +222,6 @@ export class DemoComponent implements OnInit {
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
+    //test
   }
 }
