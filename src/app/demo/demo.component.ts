@@ -28,6 +28,9 @@ export class DemoComponent implements OnInit {
 
   ngOnInit(): void {}
 
+  // click botton btn just once
+  clicked = false;
+
   //addTranslationLine is called when the user clicks the "Add Translation" button
   addTranslationLine(): void {
     // @ts-ignore
@@ -60,7 +63,7 @@ export class DemoComponent implements OnInit {
 
     const parser = new DOMParser();
     const doc = parser.parseFromString(textXML, "application/xml");
-    //if translation class exist, delete it
+    // if translation class exist, delete it
     if (doc.querySelector(".translation") != null) {
       doc.querySelectorAll(".translation").forEach((node) => {
         node.remove();

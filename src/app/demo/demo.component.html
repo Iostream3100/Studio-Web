@@ -31,7 +31,9 @@
         </div>
 
          <!--add new button about insert translation line -->
-         <button (click)="addTranslationLine()">Add Translation Line</button>
+         <!-- <button id="btn" (click)="addTranslationLine()">Add Translation Line</button> -->
+         <!--add new button about insert translation line -->
+         <button #btn type="button" class="btn btn-primary" (click)="addTranslationLine(); btn.disabled = true;">Add translation lines</button>
         
         <div class="row" *ngIf="b64Inputs">
             <read-along text="{{b64Inputs[1]}}" alignment="{{b64Inputs[2] }}" audio="{{b64Inputs[0]}}" class="hydrated">
