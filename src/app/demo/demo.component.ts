@@ -86,6 +86,8 @@ export class DemoComponent implements OnInit {
       );
     });
 
+    // '<graphic url="image-for-page1.jpg"/>'
+
     const serializer = new XMLSerializer();
     const xmlStr = serializer.serializeToString(doc);
     console.log("textXML after:", xmlStr);
@@ -149,9 +151,12 @@ export class DemoComponent implements OnInit {
     console.log(reader.result);
 
     const base64result = reader.result.substr(reader.result.indexOf(",") + 1);
-    console.log(base64result);
+    console.log("base64result:", base64result);
 
     this.imgBase64 = base64result;
+
+    this.updateImage(0, reader.result);
+    this.updateImageInTextXML(0, reader.result);
   }
 
   download() {
