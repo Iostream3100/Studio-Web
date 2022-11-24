@@ -98,10 +98,42 @@ export class DemoComponent implements OnInit {
     const readalongRoot: any = document.querySelector("read-along").shadowRoot;
     const images = readalongRoot.querySelectorAll(".image");
     for (let imageIndex = 0; imageIndex < images.length; imageIndex++) {
-      this.updateImage(
-        imageIndex,
-        "https://i.postimg.cc/cJvXWCx4/icons8-send-letter-48.png"
-      );
+      const button_local = document.createElement("button");
+      const button_url = document.createElement("button");
+      const button_delete = document.createElement("button");
+      button_local.innerHTML = "Button_local";
+      button_url.innerHTML = "Button_url";
+      button_delete.innerHTML = "Button_delete";
+      button_local.addEventListener("click", () => {
+        alert("image local button");
+      });
+      button_url.addEventListener("click", () => {
+        alert("image url button");
+      });
+      button_delete.addEventListener("click", () => {
+        alert("image delete button");
+      });
+      images[imageIndex].insertAdjacentElement("beforebegin", button_delete);
+      images[imageIndex].insertAdjacentElement("afterend", button_local);
+      images[imageIndex].insertAdjacentElement("afterend", button_url);
+
+      button_url.addEventListener("click", () => {
+        const currURL = images[imageIndex].getAttribute("src");
+        let imgURL = prompt(
+          "Please enter image url",
+          currURL && currURL.includes(this.defaultImage) ? "" : currURL
+        );
+
+        // set image to default if user enter an empty url.
+        if (imgURL == "") {
+          imgURL = "assets/" + this.defaultImage;
+        }
+        if (imgURL != null) {
+          this.updateImage(imageIndex, imgURL);
+          this.updateImageInTextXML(imageIndex, imgURL);
+        }
+      });
+
       images[imageIndex].addEventListener("click", () => {
         const currURL = images[imageIndex].getAttribute("src");
         let imgURL = prompt(
@@ -151,9 +183,12 @@ export class DemoComponent implements OnInit {
     console.log(reader.result);
 
     const base64result = reader.result.substr(reader.result.indexOf(",") + 1);
-    console.log(base64result);
+    console.log("base64result:", base64result);
 
     this.imgBase64 = base64result;
+
+    this.updateImage(0, reader.result);
+    this.updateImageInTextXML(0, reader.result);
   }
 
   download() {
