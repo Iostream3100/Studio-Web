@@ -1,7 +1,6 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { Title } from "@angular/platform-browser";
 import { B64Service } from "../b64.service";
-import { Title } from "@angular/platform-browser";
 
 @Component({
   selector: "app-demo",
@@ -16,10 +15,6 @@ export class DemoComponent implements OnInit {
     subtitle: "Subtitle",
     pageTitle: "ReadAlong Studio",
   };
-
-  constructor(public titleService: Title) {
-    titleService.setTitle(this.slots.pageTitle);
-  }
 
   constructor(public titleService: Title, public b64Service: B64Service) {
     titleService.setTitle(this.slots.pageTitle);
