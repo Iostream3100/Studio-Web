@@ -13,6 +13,7 @@ export class DemoComponent implements OnInit {
 
   slots: any = { title: "Title", subtitle: "Subtitle" };
   defaultImage = "image-for-page1.jpg";
+  whiteImage = "white.png";
 
   imageUrlForm = this.formBuilder.group({
     pageIndex: 0,
@@ -82,6 +83,7 @@ export class DemoComponent implements OnInit {
     console.log("XML pages: ", pages);
     pages.forEach((page) => {
       page.insertAdjacentHTML("afterbegin", '<graphic url="white.png"/>');
+      //page.querySelector(image.parentNode)
     });
 
     const serializer = new XMLSerializer();
@@ -97,70 +99,95 @@ export class DemoComponent implements OnInit {
     // @ts-ignore
     const readalongRoot: any = document.querySelector("read-along").shadowRoot;
     const images = readalongRoot.querySelectorAll(".image");
+    const pages = readalongRoot.querySelector(".page");
+    const sentence = readalongRoot.querySelectorAll(".sentence");
+    //const local = readalongRoot.querySelectorAll("div.page__col__text paragraph__container theme--light");
+    //const location = readalongRoot.querySelectorAll(".paragraph sentence__container theme--light")
     for (let imageIndex = 0; imageIndex < images.length; imageIndex++) {
-      const button_local = document.createElement("button");
+      const button_local = document.createElement("input");
+      button_local.type = "file";
+      // button_local.onchange = (e) =>{
+      //   //@ts-ignore
+      //   console.log(e!.target.files[0].name);
+      //   this.picked(e);
+      // }
       const button_url = document.createElement("button");
       const button_delete = document.createElement("button");
       button_local.innerHTML = "Button_local";
       button_url.innerHTML = "Button_url";
       button_delete.innerHTML = "Button_delete";
+      sentence[imageIndex].insertAdjacentElement("afterend", button_local);
+      sentence[imageIndex].insertAdjacentElement("afterend", button_url);
+      // images[imageIndex].insertAdjacentElement("afterend", button_local);
+      // images[imageIndex].insertAdjacentElement("afterend", button_url);
+      // pages[imageIndex].insertAdjacentElement("beforeend",button_local);
+      // pages[imageIndex].insertAdjacentElement("beforeend",button_local);
+      //location[imageIndex].insertAdjacentElement("afterend",button_url);
+
+      button_url.addEventListener("click", () => {
+        const currURL = images[imageIndex].getAttribute("src");
+        let imgURL = prompt(
+          "Please enter image url",
+          currURL && currURL.includes(this.defaultImage) ? "" : currURL
+        );
+
+        // set image to default if user enter an empty url.
+        if (imgURL == "") {
+          imgURL = "assets/" + this.defaultImage;
+        }
+        if (imgURL != null) {
+          this.updateImage(imageIndex, imgURL);
+          this.updateImageInTextXML(imageIndex, imgURL);
+        }
+        images[imageIndex].insertAdjacentElement("beforebegin", button_delete);
+
+        button_delete.addEventListener("click", () => {
+          let imgURL = "assets/" + this.whiteImage;
+          this.updateImage(imageIndex, imgURL);
+          this.updateImageInTextXML(imageIndex, imgURL);
+
+          button_delete.remove();
+        });
+      });
+
       button_local.addEventListener("click", () => {
-        alert("image local button");
-      });
-      button_url.addEventListener("click", () => {
-        alert("image url button");
-      });
-      button_delete.addEventListener("click", () => {
-        alert("image delete button");
-      });
-      images[imageIndex].insertAdjacentElement("beforebegin", button_delete);
-      images[imageIndex].insertAdjacentElement("afterend", button_local);
-      images[imageIndex].insertAdjacentElement("afterend", button_url);
+        button_local.onchange = (e) => {
+          console.log(e);
+          //@ts-ignore
+          console.log(e!.target.files[0].name);
+          this.picked(e);
+        };
+        images[imageIndex].insertAdjacentElement("beforebegin", button_delete);
 
-      button_url.addEventListener("click", () => {
-        const currURL = images[imageIndex].getAttribute("src");
-        let imgURL = prompt(
-          "Please enter image url",
-          currURL && currURL.includes(this.defaultImage) ? "" : currURL
-        );
+        button_delete.addEventListener("click", () => {
+          //@ts-ignore
+          //button_delete.parentNode.querySelector(".image").style.display = "none";
+          //button_delete.parentNode.style.display = "none";
+          //button_delete.remove();
 
-        // set image to default if user enter an empty url.
-        if (imgURL == "") {
-          imgURL = "assets/" + this.defaultImage;
-        }
-        if (imgURL != null) {
+          let imgURL = "assets/" + this.whiteImage;
           this.updateImage(imageIndex, imgURL);
           this.updateImageInTextXML(imageIndex, imgURL);
-        }
-      });
 
-      images[imageIndex].addEventListener("click", () => {
-        const currURL = images[imageIndex].getAttribute("src");
-        let imgURL = prompt(
-          "Please enter image url",
-          currURL && currURL.includes(this.defaultImage) ? "" : currURL
-        );
+          //this.picked(null);
 
-        // set image to default if user enter an empty url.
-        if (imgURL == "") {
-          imgURL = "assets/" + this.defaultImage;
-        }
-        if (imgURL != null) {
-          this.updateImage(imageIndex, imgURL);
-          this.updateImageInTextXML(imageIndex, imgURL);
-        }
+          button_delete.remove();
+        });
       });
     }
   }
 
   imgBase64: any = null;
 
+  //pick the image from local and update to the html
   public picked(event: any) {
     let fileList: FileList = event.target.files;
     if (fileList.length > 0) {
       const file: File = fileList[0];
       this.handleInputChange(file); //turn into base64
     } else {
+      console.log("No file selected");
+      console.log(fileList);
       alert("No file selected");
     }
   }
