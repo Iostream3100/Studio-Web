@@ -30,9 +30,6 @@
             
         </div>
 
-        <!--add new button about insert translation line -->
-         <!-- <button id="btn" (click)="addTranslationLine()">Add Translation Line</button> -->
-         <!--add new button about insert translation line and just click once  -->
          <button #btn type="button" class="btn btn-primary" (click)="addTranslationLine(); btn.disabled = true;">Add translation lines</button>
         
         <div class="row" *ngIf="b64Inputs">

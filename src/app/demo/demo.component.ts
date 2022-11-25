@@ -39,7 +39,6 @@ export class DemoComponent implements OnInit {
     sentences.forEach((sentence: any) => {
       const innerbutton = document.createElement("button");
       innerbutton.innerHTML = "Button";
-      // innerbutton.setAttribute("click", "clicked = true");
       innerbutton.addEventListener("click", () => {
         sentence.insertAdjacentHTML(
           "beforeend",
@@ -76,7 +75,7 @@ export class DemoComponent implements OnInit {
     ss.forEach((tag_s) => {
       tag_s.insertAdjacentHTML(
         "afterend",
-        `<span class="translation" contenteditable="true">${translation[count].innerHTML}</span>`
+        `<p class="translation">${translation[count].innerHTML}</p>`
       );
       count++;
     });
