@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from "@angular/core";
+import { B64Service } from "../b64.service";
 import { Title } from "@angular/platform-browser";
 
 @Component({
@@ -15,7 +16,7 @@ export class DemoComponent implements OnInit {
     pageTitle: "ReadAlong Studio",
   };
 
-  constructor(public titleService: Title) {
+  constructor(public titleService: Title, public b64Service: B64Service) {
     titleService.setTitle(this.slots.pageTitle);
   }
 
@@ -27,7 +28,69 @@ export class DemoComponent implements OnInit {
 
   ngOnInit(): void {}
 
+  // click botton btn just once
+  clicked = false;
+
+  //addTranslationLine is called when the user clicks the "Add Translation" button
+  addTranslationLine(): void {
+    // @ts-ignore
+    const readalongRoot: any = document.querySelector("read-along").shadowRoot;
+    const sentences = readalongRoot.querySelectorAll(".sentence");
+    sentences.forEach((sentence: any) => {
+      const innerbutton = document.createElement("button");
+      innerbutton.innerHTML = "Button";
+      innerbutton.addEventListener("click", () => {
+        sentence.insertAdjacentHTML(
+          "beforeend",
+          '<br><span class = "translation" contenteditable = True>Translation</span>'
+        );
+        innerbutton.disabled = true;
+      });
+      sentence.insertAdjacentElement("afterend", innerbutton);
+    });
+  }
+
+  //pass all sentences to b64Inputs[1]
+  updateTextXML(): void {
+    // @ts-ignore
+    const readalongRoot: any = document.querySelector("read-along").shadowRoot;
+    if (readalongRoot == null) {
+      return;
+    }
+    const translation = readalongRoot.querySelectorAll(".translation");
+    var textXML = this.b64Service.b64_to_utf8(
+      this.b64Inputs[1].substring(this.b64Inputs[1].indexOf(",") + 1)
+    );
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(textXML, "application/xml");
+    // if translation class exist, delete it
+    if (doc.querySelector(".translation") != null) {
+      doc.querySelectorAll(".translation").forEach((node) => {
+        node.remove();
+      });
+    }
+    const ss = doc.querySelectorAll("s");
+    let count = 0;
+    ss.forEach((tag_s) => {
+      tag_s.insertAdjacentHTML(
+        "afterend",
+        `<p class="translation">${translation[count].innerHTML}</p>`
+      );
+      count++;
+    });
+
+    const serializer = new XMLSerializer();
+    const xmlStr = serializer.serializeToString(doc);
+    this.b64Inputs[1] =
+      this.b64Inputs[1].slice(0, this.b64Inputs[1].indexOf(",") + 1) +
+      this.b64Service.utf8_to_b64(xmlStr);
+  }
+
   download() {
+    // recall updatetextXML()
+    this.updateTextXML();
+
     console.log(this.slots);
     var element = document.createElement("a");
     let blob = new Blob(

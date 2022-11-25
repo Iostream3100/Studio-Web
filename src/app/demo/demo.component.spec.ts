@@ -5,7 +5,11 @@ import { By } from "@angular/platform-browser";
 
 import { MaterialModule } from "../material.module";
 import { DemoComponent } from "./demo.component";
-
+import {
+  HttpClientTestingModule,
+  HttpTestingController,
+} from "@angular/common/http/testing";
+import { HttpClientModule } from "@angular/common/http";
 // ==== check create or not and defalut value =====
 describe("DemoComponent", () => {
   let component: DemoComponent;
@@ -13,7 +17,7 @@ describe("DemoComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MaterialModule],
+      imports: [HttpClientTestingModule, MaterialModule],
       declarations: [DemoComponent],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
