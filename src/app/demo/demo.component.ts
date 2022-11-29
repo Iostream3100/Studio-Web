@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from "@angular/core";
-import { Title } from "@angular/platform-browser";
 import { B64Service } from "../b64.service";
 import { FormBuilder } from "@angular/forms";
 
@@ -99,30 +98,32 @@ export class DemoComponent implements OnInit {
     // @ts-ignore
     const readalongRoot: any = document.querySelector("read-along").shadowRoot;
     const images = readalongRoot.querySelectorAll(".image");
-    const pages = readalongRoot.querySelector(".page");
-    const sentence = readalongRoot.querySelectorAll(".sentence");
-    //const local = readalongRoot.querySelectorAll("div.page__col__text paragraph__container theme--light");
-    //const location = readalongRoot.querySelectorAll(".paragraph sentence__container theme--light")
+    const pages = readalongRoot.querySelectorAll(".page");
+    const sentences = readalongRoot.querySelectorAll(".sentence");
+    const imageContainers = readalongRoot.querySelectorAll(".image__container");
+
     for (let imageIndex = 0; imageIndex < images.length; imageIndex++) {
       const button_local = document.createElement("input");
       button_local.type = "file";
-      // button_local.onchange = (e) =>{
-      //   //@ts-ignore
-      //   console.log(e!.target.files[0].name);
-      //   this.picked(e);
-      // }
+
       const button_url = document.createElement("button");
       const button_delete = document.createElement("button");
       button_local.innerHTML = "Button_local";
-      button_url.innerHTML = "Button_url";
+      button_url.innerHTML = "Enter Image URL";
       button_delete.innerHTML = "Button_delete";
-      sentence[imageIndex].insertAdjacentElement("afterend", button_local);
-      sentence[imageIndex].insertAdjacentElement("afterend", button_url);
-      // images[imageIndex].insertAdjacentElement("afterend", button_local);
-      // images[imageIndex].insertAdjacentElement("afterend", button_url);
-      // pages[imageIndex].insertAdjacentElement("beforeend",button_local);
-      // pages[imageIndex].insertAdjacentElement("beforeend",button_local);
-      //location[imageIndex].insertAdjacentElement("afterend",button_url);
+      // sentences[imageIndex].insertAdjacentElement("afterend", button_local);
+      // sentences[imageIndex].insertAdjacentElement("afterend", button_url);
+      // pages[imageIndex].insertAdjacentElement("afterbegin", button_local);
+      // pages[imageIndex].insertAdjacentElement("afterbegin", button_url);
+
+      imageContainers[imageIndex].insertAdjacentElement(
+        "afterbegin",
+        button_local
+      );
+      imageContainers[imageIndex].insertAdjacentElement(
+        "afterbegin",
+        button_url
+      );
 
       button_url.addEventListener("click", () => {
         const currURL = images[imageIndex].getAttribute("src");
@@ -152,26 +153,11 @@ export class DemoComponent implements OnInit {
 
       button_local.addEventListener("click", () => {
         button_local.onchange = (e) => {
-          console.log(e);
-          //@ts-ignore
-          console.log(e!.target.files[0].name);
-          //@ts-ignore
-          let fileList: FileList = e.target.files;
-          const file: File = fileList[0];
-          let localURL = URL.createObjectURL(file);
-          this.updateImage(imageIndex, localURL);
-          this.updateImageInTextXML(imageIndex, localURL);
-
-          //this.picked(e);
+          this.picked(e);
         };
         images[imageIndex].insertAdjacentElement("beforebegin", button_delete);
 
         button_delete.addEventListener("click", () => {
-          //@ts-ignore
-          //button_delete.parentNode.querySelector(".image").style.display = "none";
-          //button_delete.parentNode.style.display = "none";
-          //button_delete.remove();
-
           let imgURL = "assets/" + this.whiteImage;
           this.updateImage(imageIndex, imgURL);
           this.updateImageInTextXML(imageIndex, imgURL);
@@ -202,10 +188,9 @@ export class DemoComponent implements OnInit {
     }
   }
 
-  handleInputChange(files: any) {
-    var file = files;
-    var pattern = /image-*/;
-    var reader = new FileReader();
+  handleInputChange(file: any) {
+    const pattern = /image-*/;
+    const reader = new FileReader();
     if (!file.type.match(pattern)) {
       alert("invalid format");
       return;
@@ -216,11 +201,8 @@ export class DemoComponent implements OnInit {
 
   _handleReaderLoaded(e: any) {
     let reader = e.target;
-    console.log("_handleReaderLoaded:");
-    console.log(reader.result);
 
     const base64result = reader.result.substr(reader.result.indexOf(",") + 1);
-    console.log("base64result:", base64result);
 
     this.imgBase64 = base64result;
 
@@ -231,11 +213,7 @@ export class DemoComponent implements OnInit {
   download() {
     // @ts-ignore
     const readalongRoot: any = document.querySelector("read-along").shadowRoot;
-    console.log("shadow root: ", readalongRoot);
     const pages = readalongRoot.querySelectorAll(".page");
-    console.log("page:", pages);
-
-    const sentences = readalongRoot.querySelectorAll(".sentence");
 
     pages.forEach((page: any) => {
       const p = document.createElement("div");
@@ -275,10 +253,7 @@ export class DemoComponent implements OnInit {
       <script src="${this.b64Inputs[3][0]}"></script>
     </head>
     <body>
-        <img src="${"data:image/jpg;base64," + this.imgBase64}" alt="img1" />
-        <read-along text="${this.b64Inputs[1]}" alignment="${
-          this.b64Inputs[2]
-        }" audio="${this.b64Inputs[0]}" use-assets-folder="false">
+        <read-along text="${this.b64Inputs[1]}" alignment="${this.b64Inputs[2]}" audio="${this.b64Inputs[0]}" use-assets-folder="false">
         <span slot="read-along-header">${this.slots.title}</span>
         <span slot="read-along-subheader">${this.slots.subtitle}</span>
         </read-along>
