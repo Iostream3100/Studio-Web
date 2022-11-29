@@ -268,7 +268,7 @@ describe("B64Service", () => {
   });
 
   // the situation when there is only one word'test'
-  it("should b63service works when with one word of translation", () => {
+  it("should b64service works when with one word of translation", () => {
     let testxml = `PFRFST4KICAgIDx0ZXh0IHhtbDpsYW5nPSJlbmciIGZhbGxiYWNrLWxhbmdzPSJ1
     bmQiIGlkPSJ0MCI+CiAgICAgICAgPGJvZHkgaWQ9InQwYjAiPgogICAgICAgICAgICA8ZGl2IHR5cGU9
     InBhZ2UiIGlkPSJ0MGIwZDAiPgogICAgICAgICAgICAgICAgPHAgaWQ9InQwYjBkMHAwIj4KICAgICAg
@@ -276,12 +276,11 @@ describe("B64Service", () => {
     VD0iVCBFSCBTIFQiPnRlc3Q8L3c+IDx3IGlkPSJ0MGIwZDBwMHMwdzEiIEFSUEFCRVQ9IlQgRUggUyBU
     Ij50ZXN0PC93Pjwvcz48cCBjbGFzcz0idHJhbnNsYXRpb24iPnpoZXNoaW48L3A+CiAgICAgICAgICAg
     ICAgICA8L3A+CiAgICAgICAgICAgIDwvZGl2PgogICAgICAgIDwvYm9keT4KICAgIDwvdGV4dD4KPC9URUk+`;
-    let translation = service.b64_to_utf8(testxml);
     expect(service.b64_to_utf8(service.utf8_to_b64(testxml))).toEqual(testxml);
   });
 
   // the situation when the sentence ocupies half of the line
-  it("should b63service works with a medium length translation", () => {
+  it("should b64service works with a medium length translation", () => {
     let testxml = `PFRFST4KICAgIDx0ZXh0IHhtbDpsYW5nPSJlbmciIGZhbGxiYWNrLWxhbmdzPSJ1bmQi
     IGlkPSJ0MCI+CiAgICAgICAgPGJvZHkgaWQ9InQwYjAiPgogICAgICAgICAgICA8ZGl2IHR5cGU9InBhZ2Ui
     IGlkPSJ0MGIwZDAiPgogICAgICAgICAgICAgICAgPHAgaWQ9InQwYjBkMHAwIj4KICAgICAgICAgICAgICAg
@@ -293,12 +292,11 @@ describe("B64Service", () => {
     ZD0idDBiMGQwcDBzMHc2IiBBUlBBQkVUPSJHIFVIIEQiPmdvb2Q8L3c+Ljwvcz48cCBjbGFzcz0idHJhbnNs
     YXRpb24iPui/meaYr+S4gOS4qua1i+ivlTwvcD4KICAgICAgICAgICAgICAgIDwvcD4KICAgICAgICAgICAg
     PC9kaXY+CiAgICAgICAgPC9ib2R5PgogICAgPC90ZXh0Pgo8L1RFST4=`;
-    let translation = service.b64_to_utf8(testxml);
     expect(service.b64_to_utf8(service.utf8_to_b64(testxml))).toEqual(testxml);
   });
 
   // the situation when the sentence ocupies one line
-  it("should b63service works with a medium length translation", () => {
+  it("should b64service works with one line of translation", () => {
     let testxml = `PFRFST4KICAgIDx0ZXh0IHhtbDpsYW5nPSJlbmciIGZhbGxiYWNrLWxhbmdzPSJ1bmQiIGlkPSJ0MCI+Ci
     AgICAgICAgPGJvZHkgaWQ9InQwYjAiPgogICAgICAgICAgICA8ZGl2IHR5cGU9InBhZ2UiIGlkPSJ0MGIwZDAiPgogICAgICAg
     ICAgICAgICAgPHAgaWQ9InQwYjBkMHAwIj4KICAgICAgICAgICAgICAgICAgICA8cyBpZD0idDBiMGQwcDBzMCI+PHcgaWQ9In
@@ -313,12 +311,11 @@ describe("B64Service", () => {
     UJFVD0iTSBFWSBOIEcgRCBJWSI+bWVuZ2RpPC93PiA8dyBpZD0idDBiMGQwcDBzMHcxMCIgQVJQQUJFVD0iRUggUiBJSCBLIj5lc
     mljPC93Pjwvcz48cCBjbGFzcz0idHJhbnNsYXRpb24iPui/meaYr+S4gOS4qua1i+ivlea2jOWQkeiSmeiSgm48L3A+CiAgICAgI
     CAgICAgICAgICA8L3A+CiAgICAgICAgICAgIDwvZGl2PgogICAgICAgIDwvYm9keT4KICAgIDwvdGV4dD4KPC9URUk+`;
-    let translation = service.b64_to_utf8(testxml);
     expect(service.b64_to_utf8(service.utf8_to_b64(testxml))).toEqual(testxml);
   });
 
   // the situation when the sentence ocupies more than one line
-  it("should b63service works with a medium length translation", () => {
+  it("should b64service works with more than one line of translation", () => {
     let testxml = `PFRFST4KICAgIDx0ZXh0IHhtbDpsYW5nPSJlbmciIGZhbGxiYWNrLWxhbmdzPSJ1bmQiIGlkPSJ0MCI+CiAgICAgICAgPGJvZHkgaWQ9InQwY
     jAiPgogICAgICAgICAgICA8ZGl2IHR5cGU9InBhZ2UiIGlkPSJ0MGIwZDAiPgogICAgICAgICAgICAgICAgPHAgaWQ9InQwYjBkMHAwIj4KICAgICAgICAgICAgI
     CAgICAgICA8cyBpZD0idDBiMGQwcDBzMCI+PHcgaWQ9InQwYjBkMHAwczB3MCIgZWZmZWN0aXZlLWcycC1sYW5nPSJ1bmQiIEFSUEFCRVQ9IkNIIEhIIE9XIE4gR
@@ -335,7 +332,6 @@ describe("B64Service", () => {
     jwvcz48cCBjbGFzcz0idHJhbnNsYXRpb24iPmNob25nYSBjaG9uZ2EgY2hvbmdhIGNob25nYWNob25nYSBjaG9uZ2EgY2hvbmdhIGNob25nYWNob25nYSBjaG9uZ
     2EgY2hvbmdhIGNob25nYWNob25nYSBjaG9uZ2EgY2hvbmdhIGNob25nYWNob25nYSBjaG9uZ2EgY2hvbmdhIGNob25nYWNob25nYSBjaG9uZ2EgY2hvbmdhIGNob
     25nYTwvcD4KICAgICAgICAgICAgICAgIDwvcD4KICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgPC9ib2R5PgogICAgPC90ZXh0Pgo8L1RFST4=`;
-    let translation = service.b64_to_utf8(testxml);
     expect(service.b64_to_utf8(service.utf8_to_b64(testxml))).toEqual(testxml);
   });
 });
