@@ -38,13 +38,14 @@ export class DemoComponent implements OnInit {
     const sentences = readalongRoot.querySelectorAll(".sentence");
     sentences.forEach((sentence: any) => {
       const innerbutton = document.createElement("button");
-      innerbutton.innerHTML = "Button";
+      innerbutton.innerHTML = "Add Translation";
       innerbutton.addEventListener("click", () => {
         sentence.insertAdjacentHTML(
           "beforeend",
           '<br><span class = "translation" contenteditable = True>Translation</span>'
         );
-        innerbutton.disabled = true;
+        innerbutton.remove();
+        //innerbutton.disabled = true;
       });
       sentence.insertAdjacentElement("afterend", innerbutton);
     });
@@ -75,7 +76,7 @@ export class DemoComponent implements OnInit {
     ss.forEach((tag_s) => {
       tag_s.insertAdjacentHTML(
         "afterend",
-        `<p class="translation">${translation[count].innerHTML}</p>`
+        `<div class="translation">${translation[count].innerHTML}</div>`
       );
       count++;
     });
