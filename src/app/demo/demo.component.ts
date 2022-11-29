@@ -155,7 +155,14 @@ export class DemoComponent implements OnInit {
           console.log(e);
           //@ts-ignore
           console.log(e!.target.files[0].name);
-          this.picked(e);
+          //@ts-ignore
+          let fileList: FileList = e.target.files;
+          const file: File = fileList[0];
+          let localURL = URL.createObjectURL(file);
+          this.updateImage(imageIndex, localURL);
+          this.updateImageInTextXML(imageIndex, localURL);
+
+          //this.picked(e);
         };
         images[imageIndex].insertAdjacentElement("beforebegin", button_delete);
 
@@ -185,6 +192,9 @@ export class DemoComponent implements OnInit {
     if (fileList.length > 0) {
       const file: File = fileList[0];
       this.handleInputChange(file); //turn into base64
+      // let url_local = URL.createObjectURL(file);
+      // this.updateImage(imageIndex, url_local);
+      // this.updateImageInTextXML(imageIndex, url_local);
     } else {
       console.log("No file selected");
       console.log(fileList);
