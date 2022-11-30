@@ -98,8 +98,6 @@ export class DemoComponent implements OnInit {
     // @ts-ignore
     const readalongRoot: any = document.querySelector("read-along").shadowRoot;
     const images = readalongRoot.querySelectorAll(".image");
-    const pages = readalongRoot.querySelectorAll(".page");
-    const sentences = readalongRoot.querySelectorAll(".sentence");
     const imageContainers = readalongRoot.querySelectorAll(".image__container");
 
     for (let imageIndex = 0; imageIndex < images.length; imageIndex++) {
@@ -111,10 +109,6 @@ export class DemoComponent implements OnInit {
       button_local.innerHTML = "Button_local";
       button_url.innerHTML = "Enter Image URL";
       button_delete.innerHTML = "Button_delete";
-      // sentences[imageIndex].insertAdjacentElement("afterend", button_local);
-      // sentences[imageIndex].insertAdjacentElement("afterend", button_url);
-      // pages[imageIndex].insertAdjacentElement("afterbegin", button_local);
-      // pages[imageIndex].insertAdjacentElement("afterbegin", button_url);
 
       imageContainers[imageIndex].insertAdjacentElement(
         "afterbegin",
@@ -153,7 +147,24 @@ export class DemoComponent implements OnInit {
 
       button_local.addEventListener("click", () => {
         button_local.onchange = (e) => {
-          this.picked(e);
+          ((e, i) => {
+            // @ts-ignore
+            const f = e.target.files[0];
+            const filereader = new FileReader();
+            filereader.onloadend = () => {
+              // @ts-ignore
+              // const base64result = filereader.result.substr(filereader.result.indexOf(",") + 1);
+
+              console.log("fileReader result:", filereader.result);
+              // @ts-ignore
+              this.updateImage(i, filereader.result);
+              // @ts-ignore
+              this.updateImageInTextXML(i, filereader.result); //here we call some other functions which most likely don't cause any problems
+            };
+            filereader.readAsDataURL(f);
+          })(e, imageIndex);
+
+          // this.picked(e);
         };
         images[imageIndex].insertAdjacentElement("beforebegin", button_delete);
 
