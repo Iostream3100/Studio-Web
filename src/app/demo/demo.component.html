@@ -13,6 +13,7 @@
               </button>
             </div>
         </div>
+<!--        <button (click)="hideImageContainer()">Hide Image Container</button>-->
 
         <!-- this button can be deleted I have added new "picked" in subpages -->
         <!--
@@ -23,7 +24,7 @@
         </div>
         -->
 
-        <button (click)="addUploadImageButton()">Add Pictures</button>
+        <button (click)="updateEditImagesState()">{{this.canAddImages? "Remove Images":"Add Images"}}</button>
 
         <!--
         <form [formGroup]="imageUrlForm" (ngSubmit)="onUploadImage()">

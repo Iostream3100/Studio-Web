@@ -14,6 +14,9 @@ export class DemoComponent implements OnInit {
   defaultImage = "image-for-page1.jpg";
   whiteImage = "white.png";
 
+  initAddImagesButton: boolean = false;
+  canAddImages: boolean = false;
+
   imageUrlForm = this.formBuilder.group({
     pageIndex: 0,
     url: "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
@@ -94,6 +97,21 @@ export class DemoComponent implements OnInit {
       this.b64Service.utf8_to_b64(xmlStr);
   }
 
+  updateEditImagesState(): void {
+    if (!this.initAddImagesButton) {
+      this.addUploadImageButton();
+      this.initAddImagesButton = true;
+      this.canAddImages = true;
+    } else {
+      if (this.canAddImages) {
+        this.displayImageContainers(false);
+      } else {
+        this.displayImageContainers(true);
+      }
+      this.canAddImages = !this.canAddImages;
+    }
+  }
+
   addUploadImageButton(): void {
     // @ts-ignore
     const readalongRoot: any = document.querySelector("read-along").shadowRoot;
@@ -106,17 +124,26 @@ export class DemoComponent implements OnInit {
 
       const button_url = document.createElement("button");
       const button_delete = document.createElement("button");
+
       button_local.innerHTML = "Button_local";
       button_url.innerHTML = "Enter Image URL";
-      button_delete.innerHTML = "Button_delete";
+      button_delete.innerHTML = "Delete Image";
+
+      const buttonDiv = document.createElement("div");
+      buttonDiv.style.flexDirection = "column";
+
+      const buttonLocalDiv = document.createElement("div");
+      buttonLocalDiv.insertAdjacentElement("afterbegin", button_local);
+
+      const buttonURLDiv = document.createElement("div");
+      buttonURLDiv.insertAdjacentElement("afterbegin", button_url);
+
+      buttonDiv.insertAdjacentElement("afterbegin", buttonLocalDiv);
+      buttonDiv.insertAdjacentElement("afterbegin", buttonURLDiv);
 
       imageContainers[imageIndex].insertAdjacentElement(
         "afterbegin",
-        button_local
-      );
-      imageContainers[imageIndex].insertAdjacentElement(
-        "afterbegin",
-        button_url
+        buttonDiv
       );
 
       button_url.addEventListener("click", () => {
@@ -221,35 +248,87 @@ export class DemoComponent implements OnInit {
     this.updateImageInTextXML(0, reader.result);
   }
 
-  download() {
-    // @ts-ignore
+  /**
+   * hide or display all image containers
+   *
+   * @param display
+   */
+  displayImageContainers(display: boolean) {
+    //@ts-ignore
     const readalongRoot: any = document.querySelector("read-along").shadowRoot;
-    const pages = readalongRoot.querySelectorAll(".page");
 
-    pages.forEach((page: any) => {
-      const p = document.createElement("div");
-      p.innerHTML =
-        "    <script>\n" +
-        "      var loadFile = function (event) {\n" +
-        '        var image = document.getElementById("output");\n' +
-        "        image.src = URL.createObjectURL(event.target.files[0]);\n" +
-        "      };\n" +
-        "    </script>" +
-        "<p>\n" +
-        "      <input\n" +
-        '        type="file"\n' +
-        '        accept="image/*"\n' +
-        '        name="image"\n' +
-        '        id="file"\n' +
-        '        onchange="loadFile(event)"\n' +
-        "      />\n" +
-        "    </p>\n" +
-        '    <p><label for="file" style="cursor: pointer">Upload Image</label></p>\n' +
-        '    <p><img id="output" width="200" /></p>\n' +
-        "\n";
-
-      page.append(p);
+    const imageContainers = readalongRoot.querySelectorAll(".image__container");
+    imageContainers.forEach((imageContainer: any) => {
+      imageContainer.style.display = display ? "block" : "none";
     });
+  }
+
+  /**
+   * remove <graphics> elements with empty or default image in text XML
+   * to avoid broken images.
+   */
+  removeEmptyImageInTextXML() {
+    const textXML = this.b64Service.b64_to_utf8(
+      this.b64Inputs[1].substring(this.b64Inputs[1].indexOf(",") + 1)
+    );
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(textXML, "application/xml");
+    const pages = doc.querySelectorAll("div[type=page]");
+
+    for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+      const graphic = pages[pageIndex].querySelector("graphic");
+
+      if (graphic != null) {
+        // @ts-ignore
+        const graphicURL: string = graphic.getAttribute("url");
+        console.log("graphic url: ", graphicURL);
+
+        if (graphicURL.includes("white.png")) {
+          // @ts-ignore
+          graphic.parentNode.removeChild(graphic);
+        }
+      }
+    }
+
+    const serializer = new XMLSerializer();
+    const xmlStr = serializer.serializeToString(doc);
+
+    this.b64Inputs[1] =
+      this.b64Inputs[1].slice(0, this.b64Inputs[1].indexOf(",") + 1) +
+      this.b64Service.utf8_to_b64(xmlStr);
+  }
+
+  restoreEmptyImageInTextXML() {
+    const textXML = this.b64Service.b64_to_utf8(
+      this.b64Inputs[1].substring(this.b64Inputs[1].indexOf(",") + 1)
+    );
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(textXML, "application/xml");
+    const pages = doc.querySelectorAll("div[type=page]");
+
+    for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+      const graphic = pages[pageIndex].querySelector("graphic");
+
+      if (graphic == null) {
+        pages[pageIndex].insertAdjacentHTML(
+          "afterbegin",
+          '<graphic url="white.png"/>'
+        );
+      }
+    }
+
+    const serializer = new XMLSerializer();
+    const xmlStr = serializer.serializeToString(doc);
+
+    this.b64Inputs[1] =
+      this.b64Inputs[1].slice(0, this.b64Inputs[1].indexOf(",") + 1) +
+      this.b64Service.utf8_to_b64(xmlStr);
+  }
+
+  download() {
+    this.removeEmptyImageInTextXML();
 
     var element = document.createElement("a");
     let blob = new Blob(
@@ -280,5 +359,7 @@ export class DemoComponent implements OnInit {
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
+
+    this.restoreEmptyImageInTextXML();
   }
 }
