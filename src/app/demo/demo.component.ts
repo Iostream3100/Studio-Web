@@ -31,7 +31,7 @@ export class DemoComponent implements OnInit {
   // click botton btn just once
   clicked = false;
 
-  //addTranslationLine is called when the user clicks the "Add Translation" button
+  // addTranslationLine is called when the user clicks the "Add Translation" button
   addTranslationLine(): void {
     // @ts-ignore
     const readalongRoot: any = document.querySelector("read-along").shadowRoot;
@@ -59,30 +59,32 @@ export class DemoComponent implements OnInit {
       return;
     }
     const translation = readalongRoot.querySelectorAll(".translation");
+    console.log("======== sentence: ============", translation[1]);
     var textXML = this.b64Service.b64_to_utf8(
       this.b64Inputs[1].substring(this.b64Inputs[1].indexOf(",") + 1)
     );
-
+    console.log("======== textXML before: ============", textXML);
     const parser = new DOMParser();
     const doc = parser.parseFromString(textXML, "application/xml");
-    // if translation class exist, delete it
+    //if translation class exist, delete it
     if (doc.querySelector(".translation") != null) {
       doc.querySelectorAll(".translation").forEach((node) => {
         node.remove();
       });
     }
     const ss = doc.querySelectorAll("s");
-    let count = 0;
-    ss.forEach((tag_s) => {
-      tag_s.insertAdjacentHTML(
+    console.log("======== ss: ============", ss[0]);
+    console.log("======== ss length: ============", ss.length);
+    for (let i = 0; i < ss.length; i++) {
+      ss[i].insertAdjacentHTML(
         "afterend",
-        `<div class="translation">${translation[count].innerHTML}</div>`
+        `<span class="translation" contenteditable="true">${translation[i].innerHTML}</span>`
       );
-      count++;
-    });
+    }
 
     const serializer = new XMLSerializer();
     const xmlStr = serializer.serializeToString(doc);
+    console.log("======= textXML after: =============", xmlStr);
     this.b64Inputs[1] =
       this.b64Inputs[1].slice(0, this.b64Inputs[1].indexOf(",") + 1) +
       this.b64Service.utf8_to_b64(xmlStr);
