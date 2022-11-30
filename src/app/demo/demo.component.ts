@@ -31,20 +31,20 @@ export class DemoComponent implements OnInit {
   // click botton btn just once
   clicked = false;
 
-  //addTranslationLine is called when the user clicks the "Add Translation" button
+  // addTranslationLine is called when the user clicks the "Add Translation" button
   addTranslationLine(): void {
     // @ts-ignore
     const readalongRoot: any = document.querySelector("read-along").shadowRoot;
     const sentences = readalongRoot.querySelectorAll(".sentence");
     sentences.forEach((sentence: any) => {
       const innerbutton = document.createElement("button");
-      innerbutton.innerHTML = "Button";
+      innerbutton.innerHTML = "Add Translation";
       innerbutton.addEventListener("click", () => {
         sentence.insertAdjacentHTML(
           "beforeend",
           '<br><span class = "translation" contenteditable = True>Translation</span>'
         );
-        innerbutton.disabled = true;
+        innerbutton.remove();
       });
       sentence.insertAdjacentElement("afterend", innerbutton);
     });
@@ -75,7 +75,7 @@ export class DemoComponent implements OnInit {
     ss.forEach((tag_s) => {
       tag_s.insertAdjacentHTML(
         "afterend",
-        `<p class="translation">${translation[count].innerHTML}</p>`
+        `<span class="translation" contenteditable="true">${translation[count].innerHTML}</span>`
       );
       count++;
     });
