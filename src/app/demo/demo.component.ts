@@ -101,30 +101,29 @@ export class DemoComponent implements OnInit {
     const images = readalongRoot.querySelectorAll(".image");
     const pages = readalongRoot.querySelector(".page");
     const sentence = readalongRoot.querySelectorAll(".sentence");
-    //const local = readalongRoot.querySelectorAll("div.page__col__text paragraph__container theme--light");
-    //const location = readalongRoot.querySelectorAll(".paragraph sentence__container theme--light")
+    const imageContainers = readalongRoot.querySelectorAll(".image__container");
     for (let imageIndex = 0; imageIndex < images.length; imageIndex++) {
       const button_local = document.createElement("input");
       button_local.type = "file";
-      // button_local.onchange = (e) =>{
-      //   //@ts-ignore
-      //   console.log(e!.target.files[0].name);
-      //   this.picked(e);
-      // }
       const button_url = document.createElement("button");
       const button_delete = document.createElement("button");
       button_local.innerHTML = "Button_local";
       button_url.innerHTML = "Button_url";
       button_delete.innerHTML = "Button_delete";
-      sentence[imageIndex].insertAdjacentElement("afterend", button_local);
-      sentence[imageIndex].insertAdjacentElement("afterend", button_url);
-      // images[imageIndex].insertAdjacentElement("afterend", button_local);
-      // images[imageIndex].insertAdjacentElement("afterend", button_url);
-      // pages[imageIndex].insertAdjacentElement("beforeend",button_local);
-      // pages[imageIndex].insertAdjacentElement("beforeend",button_local);
-      //location[imageIndex].insertAdjacentElement("afterend",button_url);
+      imageContainers[imageIndex].insertAdjacentElement(
+        "afterbegin",
+        button_local
+      );
+      imageContainers[imageIndex].insertAdjacentElement(
+        "afterbegin",
+        button_url
+      );
 
       button_url.addEventListener("click", () => {
+        if (images[imageIndex].style.display == "none") {
+          images[imageIndex].style.display = "block";
+        }
+
         const currURL = images[imageIndex].getAttribute("src");
         let imgURL = prompt(
           "Please enter image url",
@@ -142,11 +141,17 @@ export class DemoComponent implements OnInit {
         images[imageIndex].insertAdjacentElement("beforebegin", button_delete);
 
         button_delete.addEventListener("click", () => {
-          let imgURL = "assets/" + this.whiteImage;
-          this.updateImage(imageIndex, imgURL);
-          this.updateImageInTextXML(imageIndex, imgURL);
+          // let imgURL = "assets/" + this.whiteImage;
+          // this.updateImage(imageIndex, imgURL);
+          // this.updateImageInTextXML(imageIndex, imgURL);
 
+          // @ts-ignore
+          // button_delete.parentNode.querySelector(".image").style.display = "none";
+          // button_delete.parentNode.style.display = "none";
+          images[imageIndex].style.display = "none";
           button_delete.remove();
+
+          //button_delete.remove();
         });
       });
 
@@ -160,6 +165,7 @@ export class DemoComponent implements OnInit {
           const file: File = fileList[0];
           let localURL = URL.createObjectURL(file);
           this.updateImage(imageIndex, localURL);
+          console.log("localURL :" + localURL);
           this.updateImageInTextXML(imageIndex, localURL);
 
           //this.picked(e);
