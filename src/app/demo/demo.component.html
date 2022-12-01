@@ -24,7 +24,7 @@
         </div>
         -->
 
-        <button (click)="updateEditImagesState()">{{this.canAddImages? "Remove Images":"Add Images"}}</button>
+        <button (click)="updateEditImagesState()">{{this.editImageMode? "Remove Images":"Add Images"}}</button>
 
         <!--
         <form [formGroup]="imageUrlForm" (ngSubmit)="onUploadImage()">

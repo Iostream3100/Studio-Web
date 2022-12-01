@@ -15,23 +15,15 @@ export class DemoComponent implements OnInit {
   whiteImage = "white.png";
 
   initAddImagesButton: boolean = false;
-  canAddImages: boolean = false;
+  editImageMode: boolean = false;
 
-  imageUrlForm = this.formBuilder.group({
-    pageIndex: 0,
-    url: "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
-  });
-
-  constructor(
-    private b64Service: B64Service,
-    private formBuilder: FormBuilder
-  ) {}
+  constructor(private b64Service: B64Service) {}
 
   ngOnInit(): void {
     this.initImageForEachPage();
   }
 
-  updateImage(pageIndex: number, url: string) {
+  updateImageInHTML(pageIndex: number, url: string) {
     // @ts-ignore
     const readalongRoot: any = document.querySelector("read-along").shadowRoot;
     const images = readalongRoot.querySelectorAll(".image");
@@ -40,17 +32,35 @@ export class DemoComponent implements OnInit {
 
   updateImageInTextXML(pageIndex: number, url: string) {
     console.log("base64[1]: ", this.b64Inputs[1]);
-    var textXML = this.b64Service.b64_to_utf8(
+    const textXML = this.b64Service.b64_to_utf8(
       this.b64Inputs[1].substring(this.b64Inputs[1].indexOf(",") + 1)
     );
 
     const parser = new DOMParser();
     const doc = parser.parseFromString(textXML, "application/xml");
-    const pages = doc.querySelectorAll("div[type=page]");
+    const page = doc.querySelectorAll("div[type=page]")[pageIndex];
 
-    // @ts-ignore
-    pages[pageIndex].querySelector("graphic").setAttribute("url", url);
-    console.log("page after:", pages[pageIndex]);
+    let graphic = page.querySelector("graphic");
+
+    // add graphic element if it doesn't exist
+    if (graphic == null) {
+      // page.insertAdjacentHTML("afterbegin", "<graphic url={{this.whiteImage}}/>");
+      page.insertAdjacentHTML(
+        "afterbegin",
+        `<graphic url="${this.whiteImage}"/>`
+      );
+    }
+
+    graphic = page.querySelector("graphic");
+
+    console.log("pageIndex, url", pageIndex, url);
+
+    if (url == null || url.length == 0 || url.includes(this.whiteImage)) {
+      console.log("here");
+      graphic?.parentNode?.removeChild(graphic);
+    } else {
+      graphic?.setAttribute("url", url);
+    }
 
     const serializer = new XMLSerializer();
     const xmlStr = serializer.serializeToString(doc);
@@ -60,17 +70,6 @@ export class DemoComponent implements OnInit {
     this.b64Inputs[1] =
       this.b64Inputs[1].slice(0, this.b64Inputs[1].indexOf(",") + 1) +
       this.b64Service.utf8_to_b64(xmlStr);
-  }
-
-  onUploadImage(): void {
-    this.updateImage(
-      <number>this.imageUrlForm.value.pageIndex,
-      <string>this.imageUrlForm.value.url
-    );
-    this.updateImageInTextXML(
-      <number>this.imageUrlForm.value.pageIndex,
-      <string>this.imageUrlForm.value.url
-    );
   }
 
   initImageForEachPage(): void {
@@ -84,7 +83,12 @@ export class DemoComponent implements OnInit {
     const pages = doc.querySelectorAll("div[type=page]");
     console.log("XML pages: ", pages);
     pages.forEach((page) => {
-      page.insertAdjacentHTML("afterbegin", '<graphic url="white.png"/>');
+      // page.insertAdjacentHTML("afterbegin", "<graphic url={{this.whiteImage}}/>");
+      page.insertAdjacentHTML(
+        "afterbegin",
+        `<graphic url="${this.whiteImage}"/>`
+      );
+
       //page.querySelector(image.parentNode)
     });
 
@@ -101,14 +105,27 @@ export class DemoComponent implements OnInit {
     if (!this.initAddImagesButton) {
       this.addUploadImageButton();
       this.initAddImagesButton = true;
-      this.canAddImages = true;
+      this.editImageMode = true;
     } else {
-      if (this.canAddImages) {
-        this.displayImageContainers(false);
-      } else {
+      this.editImageMode = !this.editImageMode;
+      if (this.editImageMode) {
         this.displayImageContainers(true);
+      } else {
+        console.log("delete graphics");
+        this.displayImageContainers(false);
+        this.deleteGraphicsInXML();
       }
-      this.canAddImages = !this.canAddImages;
+    }
+  }
+
+  // delete all graphics in text XML
+  deleteGraphicsInXML(): void {
+    console.log("inside deleteGraphicsInXML");
+    // @ts-ignore
+    const readalongRoot: any = document.querySelector("read-along").shadowRoot;
+    const images = readalongRoot.querySelectorAll(".image");
+    for (let i = 0; i < images.length; i++) {
+      this.updateImageInTextXML(i, "");
     }
   }
 
@@ -158,14 +175,14 @@ export class DemoComponent implements OnInit {
           imgURL = "assets/" + this.defaultImage;
         }
         if (imgURL != null) {
-          this.updateImage(imageIndex, imgURL);
+          this.updateImageInHTML(imageIndex, imgURL);
           this.updateImageInTextXML(imageIndex, imgURL);
         }
         images[imageIndex].insertAdjacentElement("beforebegin", button_delete);
 
         button_delete.addEventListener("click", () => {
           let imgURL = "assets/" + this.whiteImage;
-          this.updateImage(imageIndex, imgURL);
+          this.updateImageInHTML(imageIndex, imgURL);
           this.updateImageInTextXML(imageIndex, imgURL);
 
           button_delete.remove();
@@ -184,7 +201,7 @@ export class DemoComponent implements OnInit {
 
               console.log("fileReader result:", filereader.result);
               // @ts-ignore
-              this.updateImage(i, filereader.result);
+              this.updateImageInHTML(i, filereader.result);
               // @ts-ignore
               this.updateImageInTextXML(i, filereader.result); //here we call some other functions which most likely don't cause any problems
             };
@@ -197,7 +214,7 @@ export class DemoComponent implements OnInit {
 
         button_delete.addEventListener("click", () => {
           let imgURL = "assets/" + this.whiteImage;
-          this.updateImage(imageIndex, imgURL);
+          this.updateImageInHTML(imageIndex, imgURL);
           this.updateImageInTextXML(imageIndex, imgURL);
 
           //this.picked(null);
@@ -244,7 +261,7 @@ export class DemoComponent implements OnInit {
 
     this.imgBase64 = base64result;
 
-    this.updateImage(0, reader.result);
+    this.updateImageInHTML(0, reader.result);
     this.updateImageInTextXML(0, reader.result);
   }
 
@@ -258,9 +275,20 @@ export class DemoComponent implements OnInit {
     const readalongRoot: any = document.querySelector("read-along").shadowRoot;
 
     const imageContainers = readalongRoot.querySelectorAll(".image__container");
-    imageContainers.forEach((imageContainer: any) => {
-      imageContainer.style.display = display ? "block" : "none";
-    });
+    for (let i = 0; i < imageContainers.length; i++) {
+      const imageContainer = imageContainers[i];
+
+      if (display) {
+        imageContainer.style.display = "block";
+      } else {
+        // set image to default blank image
+        let imgURL = "assets/" + this.whiteImage;
+        this.updateImageInHTML(i, imgURL);
+
+        // hide the image container
+        imageContainer.style.display = "none";
+      }
+    }
   }
 
   /**
@@ -284,7 +312,7 @@ export class DemoComponent implements OnInit {
         const graphicURL: string = graphic.getAttribute("url");
         console.log("graphic url: ", graphicURL);
 
-        if (graphicURL.includes("white.png")) {
+        if (graphicURL.includes(this.whiteImage) || !this.editImageMode) {
           // @ts-ignore
           graphic.parentNode.removeChild(graphic);
         }
@@ -312,9 +340,13 @@ export class DemoComponent implements OnInit {
       const graphic = pages[pageIndex].querySelector("graphic");
 
       if (graphic == null) {
+        // pages[pageIndex].insertAdjacentHTML(
+        //   "afterbegin",
+        //   "<graphic url={{this.whiteImage}}/>"
+        // );
         pages[pageIndex].insertAdjacentHTML(
           "afterbegin",
-          '<graphic url="white.png"/>'
+          `<graphic url="${this.whiteImage}"/>`
         );
       }
     }
@@ -328,7 +360,7 @@ export class DemoComponent implements OnInit {
   }
 
   download() {
-    this.removeEmptyImageInTextXML();
+    // this.removeEmptyImageInTextXML();
 
     var element = document.createElement("a");
     let blob = new Blob(
@@ -360,6 +392,6 @@ export class DemoComponent implements OnInit {
     element.click();
     document.body.removeChild(element);
 
-    this.restoreEmptyImageInTextXML();
+    // this.restoreEmptyImageInTextXML();
   }
 }
