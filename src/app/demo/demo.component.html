@@ -13,40 +13,10 @@
               </button>
             </div>
         </div>
-<!--        <button (click)="hideImageContainer()">Hide Image Container</button>-->
 
-        <!-- this button can be deleted I have added new "picked" in subpages -->
-        <!--
-        <div style="margin-bottom: 40px">
-            <h2>Upload Image and convert to b64 format</h2>
-            <img src="{{ 'data:image/jpg;base64,' + imgBase64 }}" alt="img1" />
-            <input type="file" (change)="picked($event)" type="file">
+        <div class="row">
+            <button (click)="updateEditImagesState()">{{this.editImageMode? "Remove Images":"Add Images"}}</button>
         </div>
-        -->
-
-        <button (click)="updateEditImagesState()">{{this.editImageMode? "Remove Images":"Add Images"}}</button>
-
-        <!--
-        <form [formGroup]="imageUrlForm" (ngSubmit)="onUploadImage()">
-            <h2>Upload image to read-along component</h2>
-            <div>
-                <label for="url">
-                    url
-                </label>
-                <input id="url" type="text" formControlName="url">
-            </div>
-
-            <div>
-                <label for="pageIndex">
-                    pageIndex
-                </label>
-                <input id="pageIndex" type="number" formControlName="pageIndex">
-            </div>
-
-            <button class="button" type="submit">Upload</button>
-
-        </form>
-        -->
 
         <div class="row" *ngIf="b64Inputs">
             <read-along text="{{b64Inputs[1]}}" alignment="{{b64Inputs[2] }}" audio="{{b64Inputs[0]}}" class="hydrated">
