@@ -9,63 +9,49 @@ import { FormBuilder } from "@angular/forms";
 })
 export class DemoComponent implements OnInit {
   @Input() b64Inputs: string[];
-
   slots: any = { title: "Title", subtitle: "Subtitle" };
   whiteImage = "white.png";
-
   initAddImagesButton: boolean = false;
   editImageMode: boolean = false;
 
   constructor(private b64Service: B64Service) {}
 
   ngOnInit(): void {
-    this.initImageForEachPage();
+    // initialize the graphic node in text XML in each page
+    // to let web-component render image-container and image with the blank white image
+    this.updateImageInTextXML(this.whiteImage, undefined, false);
   }
 
+  /**
+   * update image in the HTML that read-along web-component rendered
+   * @param pageIndex
+   * @param url
+   */
   updateImageInHTML(pageIndex: number, url: string) {
-    // @ts-ignore
-    const readalongRoot: any = document.querySelector("read-along").shadowRoot;
-    const images = readalongRoot.querySelectorAll(".image");
-    images[pageIndex].setAttribute("src", url);
-  }
+    const readAlongRoot: any = document.querySelector("read-along")?.shadowRoot;
 
-  updateImageInTextXML(pageIndex: number, url: string) {
-    const textXML = this.b64Service.b64_to_utf8(
-      this.b64Inputs[1].substring(this.b64Inputs[1].indexOf(",") + 1)
-    );
-
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(textXML, "application/xml");
-    const page = doc.querySelectorAll("div[type=page]")[pageIndex];
-
-    let graphic = page.querySelector("graphic");
-
-    // add graphic element if it doesn't exist
-    if (graphic == null) {
-      // page.insertAdjacentHTML("afterbegin", "<graphic url={{this.whiteImage}}/>");
-      page.insertAdjacentHTML(
-        "afterbegin",
-        `<graphic url="${this.whiteImage}"/>`
-      );
-    }
-
-    graphic = page.querySelector("graphic");
-
-    if (url == null || url.length == 0 || url.includes(this.whiteImage)) {
-      graphic?.parentNode?.removeChild(graphic);
+    if (readAlongRoot) {
+      const images = readAlongRoot.querySelectorAll(".image");
+      images[pageIndex].setAttribute("src", url);
     } else {
-      graphic?.setAttribute("url", url);
+      console.log("Cannot locate shadow root of web-component");
     }
-
-    const serializer = new XMLSerializer();
-    const xmlStr = serializer.serializeToString(doc);
-
-    this.b64Inputs[1] =
-      this.b64Inputs[1].slice(0, this.b64Inputs[1].indexOf(",") + 1) +
-      this.b64Service.utf8_to_b64(xmlStr);
   }
 
-  initImageForEachPage(): void {
+  /**
+   * update the image in text XML file
+   * @param url               new image url, the format can be base64, web url,
+   *                          or a relative file path like "assets/xxx.png"
+   * @param pageIndex?        page index of the image,
+   *                          if no pageIndex is given, all pages will be updated.
+   * @param deleteEmptyImage  whether to delete the graphic node
+   *                          if url is empty or the default image
+   */
+  updateImageInTextXML(
+    url: string,
+    pageIndex?: number,
+    deleteEmptyImage: boolean = true
+  ) {
     const textXML = this.b64Service.b64_to_utf8(
       this.b64Inputs[1].substring(this.b64Inputs[1].indexOf(",") + 1)
     );
@@ -73,12 +59,38 @@ export class DemoComponent implements OnInit {
     const parser = new DOMParser();
     const doc = parser.parseFromString(textXML, "application/xml");
     const pages = doc.querySelectorAll("div[type=page]");
-    pages.forEach((page) => {
-      page.insertAdjacentHTML(
-        "afterbegin",
-        `<graphic url="${this.whiteImage}"/>`
-      );
-    });
+
+    let pagesToUpdate: Element[];
+    if (pageIndex != undefined) {
+      // if page index is specified, just update the image of that page
+      pagesToUpdate = [pages[pageIndex]];
+    } else {
+      // otherwise update all images
+      pagesToUpdate = Array.from(pages);
+    }
+    for (let page of pagesToUpdate) {
+      let graphic = page.querySelector("graphic");
+
+      // add graphic element if it doesn't exist
+      if (graphic == null) {
+        page.insertAdjacentHTML(
+          "afterbegin",
+          `<graphic url="${this.whiteImage}"/>`
+        );
+      }
+
+      graphic = page.querySelector("graphic");
+
+      if (deleteEmptyImage) {
+        // If url is empty or the default white image,
+        // remove the graphic node to avoid a broken image in the downloaded HTML file
+        if (url == null || url.length == 0 || url.includes(this.whiteImage)) {
+          graphic?.parentNode?.removeChild(graphic);
+        } else {
+          graphic?.setAttribute("url", url);
+        }
+      }
+    }
 
     const serializer = new XMLSerializer();
     const xmlStr = serializer.serializeToString(doc);
@@ -88,8 +100,12 @@ export class DemoComponent implements OnInit {
       this.b64Service.utf8_to_b64(xmlStr);
   }
 
+  /**
+   * enter or exit edit image mode.
+   */
   updateEditImagesState(): void {
     if (!this.initAddImagesButton) {
+      // initialize upload image buttons
       this.addUploadImageButton();
       this.initAddImagesButton = true;
       this.editImageMode = true;
@@ -99,18 +115,9 @@ export class DemoComponent implements OnInit {
         this.displayImageContainers(true);
       } else {
         this.displayImageContainers(false);
-        this.deleteGraphicsInXML();
+        // delete all graphics node in text XML
+        this.updateImageInTextXML("", undefined, true);
       }
-    }
-  }
-
-  // delete all graphics in text XML
-  deleteGraphicsInXML(): void {
-    // @ts-ignore
-    const readalongRoot: any = document.querySelector("read-along").shadowRoot;
-    const images = readalongRoot.querySelectorAll(".image");
-    for (let i = 0; i < images.length; i++) {
-      this.updateImageInTextXML(i, "");
     }
   }
 
@@ -154,14 +161,14 @@ export class DemoComponent implements OnInit {
 
         if (imgURL != null) {
           this.updateImageInHTML(imageIndex, imgURL);
-          this.updateImageInTextXML(imageIndex, imgURL);
+          this.updateImageInTextXML(imgURL, imageIndex);
         }
         images[imageIndex].insertAdjacentElement("beforebegin", button_delete);
 
         button_delete.addEventListener("click", () => {
           let imgURL = "assets/" + this.whiteImage;
           this.updateImageInHTML(imageIndex, imgURL);
-          this.updateImageInTextXML(imageIndex, imgURL);
+          this.updateImageInTextXML(imgURL, imageIndex);
 
           button_delete.remove();
         });
@@ -177,7 +184,7 @@ export class DemoComponent implements OnInit {
               // @ts-ignore
               this.updateImageInHTML(i, filereader.result);
               // @ts-ignore
-              this.updateImageInTextXML(i, filereader.result); //here we call some other functions which most likely don't cause any problems
+              this.updateImageInTextXML(filereader.result, i); //here we call some other functions which most likely don't cause any problems
             };
             filereader.readAsDataURL(f);
           })(e, imageIndex);
@@ -187,7 +194,7 @@ export class DemoComponent implements OnInit {
         button_delete.addEventListener("click", () => {
           let imgURL = "assets/" + this.whiteImage;
           this.updateImageInHTML(imageIndex, imgURL);
-          this.updateImageInTextXML(imageIndex, imgURL);
+          this.updateImageInTextXML(imgURL, imageIndex);
 
           button_delete.remove();
         });
@@ -198,26 +205,30 @@ export class DemoComponent implements OnInit {
   /**
    * hide or display all image containers
    *
-   * @param display
+   * @param display Image container visibility
    */
   displayImageContainers(display: boolean) {
-    //@ts-ignore
-    const readalongRoot: any = document.querySelector("read-along").shadowRoot;
+    const readAlongRoot: any = document.querySelector("read-along")?.shadowRoot;
 
-    const imageContainers = readalongRoot.querySelectorAll(".image__container");
-    for (let i = 0; i < imageContainers.length; i++) {
-      const imageContainer = imageContainers[i];
+    if (readAlongRoot) {
+      const imageContainers =
+        readAlongRoot.querySelectorAll(".image__container");
+      for (let i = 0; i < imageContainers.length; i++) {
+        const imageContainer = imageContainers[i];
 
-      if (display) {
-        imageContainer.style.display = "block";
-      } else {
-        // set image to default blank image
-        let imgURL = "assets/" + this.whiteImage;
-        this.updateImageInHTML(i, imgURL);
+        if (display) {
+          imageContainer.style.display = "block";
+        } else {
+          // set image to default blank image
+          let imgURL = "assets/" + this.whiteImage;
+          this.updateImageInHTML(i, imgURL);
 
-        // hide the image container
-        imageContainer.style.display = "none";
+          // hide the image container
+          imageContainer.style.display = "none";
+        }
       }
+    } else {
+      console.log("Cannot locate shadow root of web-component");
     }
   }
 
