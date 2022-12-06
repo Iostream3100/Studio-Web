@@ -10,6 +10,7 @@ import { FormBuilder } from "@angular/forms";
 export class DemoComponent implements OnInit {
   @Input() b64Inputs: string[];
   slots: any = { title: "Title", subtitle: "Subtitle" };
+  // default blank image as placeholder, saved in assets/ folder
   whiteImage = "white.png";
   initAddImagesButton: boolean = false;
   editImageMode: boolean = false;
@@ -52,6 +53,7 @@ export class DemoComponent implements OnInit {
     pageIndex?: number,
     deleteEmptyImage: boolean = true
   ) {
+    // decode text XML from base64 format
     const textXML = this.b64Service.b64_to_utf8(
       this.b64Inputs[1].substring(this.b64Inputs[1].indexOf(",") + 1)
     );
@@ -95,6 +97,7 @@ export class DemoComponent implements OnInit {
     const serializer = new XMLSerializer();
     const xmlStr = serializer.serializeToString(doc);
 
+    // convert back to base64 format and update text XML
     this.b64Inputs[1] =
       this.b64Inputs[1].slice(0, this.b64Inputs[1].indexOf(",") + 1) +
       this.b64Service.utf8_to_b64(xmlStr);
@@ -121,84 +124,96 @@ export class DemoComponent implements OnInit {
     }
   }
 
+  /**
+   * add upload image buttons and their event listeners
+   */
   addUploadImageButton(): void {
-    // @ts-ignore
-    const readalongRoot: any = document.querySelector("read-along").shadowRoot;
-    const images = readalongRoot.querySelectorAll(".image");
-    const imageContainers = readalongRoot.querySelectorAll(".image__container");
+    const readAlongRoot: any = document.querySelector("read-along")?.shadowRoot;
 
-    for (let imageIndex = 0; imageIndex < images.length; imageIndex++) {
-      const button_local = document.createElement("input");
-      button_local.type = "file";
+    if (readAlongRoot) {
+      const images = readAlongRoot.querySelectorAll(".image");
+      const imageContainers =
+        readAlongRoot.querySelectorAll(".image__container");
 
-      const button_url = document.createElement("button");
-      const button_delete = document.createElement("button");
-
-      button_local.innerHTML = "Button_local";
-      button_url.innerHTML = "Enter Image URL";
-      button_delete.innerHTML = "Delete Image";
-
-      const buttonDiv = document.createElement("div");
-      buttonDiv.style.flexDirection = "column";
-
-      const buttonLocalDiv = document.createElement("div");
-      buttonLocalDiv.insertAdjacentElement("afterbegin", button_local);
-
-      const buttonURLDiv = document.createElement("div");
-      buttonURLDiv.insertAdjacentElement("afterbegin", button_url);
-
-      buttonDiv.insertAdjacentElement("afterbegin", buttonLocalDiv);
-      buttonDiv.insertAdjacentElement("afterbegin", buttonURLDiv);
-
-      imageContainers[imageIndex].insertAdjacentElement(
-        "afterbegin",
-        buttonDiv
-      );
-
-      button_url.addEventListener("click", () => {
-        const currURL = images[imageIndex].getAttribute("src");
-        let imgURL = prompt("Please enter image url", currURL ? "" : currURL);
-
-        if (imgURL != null) {
-          this.updateImageInHTML(imageIndex, imgURL);
-          this.updateImageInTextXML(imgURL, imageIndex);
-        }
-        images[imageIndex].insertAdjacentElement("beforebegin", button_delete);
-
+      for (let imageIndex = 0; imageIndex < images.length; imageIndex++) {
+        // delete image button
+        const button_delete = document.createElement("button");
+        button_delete.innerHTML = "Delete Image";
         button_delete.addEventListener("click", () => {
-          let imgURL = "assets/" + this.whiteImage;
-          this.updateImageInHTML(imageIndex, imgURL);
-          this.updateImageInTextXML(imgURL, imageIndex);
-
+          let defaultImageUrl = "assets/" + this.whiteImage;
+          this.updateImageInHTML(imageIndex, defaultImageUrl);
+          this.updateImageInTextXML(defaultImageUrl, imageIndex);
           button_delete.remove();
         });
-      });
 
-      button_local.addEventListener("click", () => {
-        button_local.onchange = (e) => {
-          ((e, i) => {
-            // @ts-ignore
-            const f = e.target.files[0];
-            const filereader = new FileReader();
-            filereader.onloadend = () => {
-              // @ts-ignore
-              this.updateImageInHTML(i, filereader.result);
-              // @ts-ignore
-              this.updateImageInTextXML(filereader.result, i); //here we call some other functions which most likely don't cause any problems
-            };
-            filereader.readAsDataURL(f);
-          })(e, imageIndex);
-        };
-        images[imageIndex].insertAdjacentElement("beforebegin", button_delete);
+        // upload web url image button
+        const button_url = document.createElement("button");
+        button_url.innerHTML = "Enter Image URL";
+        const buttonURLDiv = document.createElement("div");
+        buttonURLDiv.insertAdjacentElement("afterbegin", button_url);
+        imageContainers[imageIndex].insertAdjacentElement(
+          "afterbegin",
+          buttonURLDiv
+        );
 
-        button_delete.addEventListener("click", () => {
-          let imgURL = "assets/" + this.whiteImage;
-          this.updateImageInHTML(imageIndex, imgURL);
-          this.updateImageInTextXML(imgURL, imageIndex);
+        // add event listener for uploading image from an web url
+        button_url.addEventListener("click", () => {
+          const currURL = images[imageIndex].getAttribute("src");
+          let imgURL = prompt("Please enter image url", currURL ? "" : currURL);
 
-          button_delete.remove();
+          if (imgURL != null) {
+            this.updateImageInHTML(imageIndex, imgURL);
+            this.updateImageInTextXML(imgURL, imageIndex);
+            // show delete button if the image is uploaded
+            images[imageIndex].insertAdjacentElement(
+              "beforebegin",
+              button_delete
+            );
+          }
         });
-      });
+
+        // upload local image button
+        const button_local = document.createElement("input");
+        button_local.type = "file";
+        const buttonLocalDiv = document.createElement("div");
+        buttonLocalDiv.insertAdjacentElement("afterbegin", button_local);
+        imageContainers[imageIndex].insertAdjacentElement(
+          "afterbegin",
+          buttonLocalDiv
+        );
+
+        // add event listener for uploading local image
+        button_local.addEventListener("click", () => {
+          button_local.onchange = (e) => {
+            // this function is used to pass imageIndex to the event listener
+            ((event, index) => {
+              const files = (event.target as HTMLInputElement).files;
+              if (files == null) {
+                console.log("No file selected.");
+              } else {
+                const file = files[0];
+                const fileReader = new FileReader();
+
+                fileReader.onloadend = () => {
+                  const fileReaderResult = fileReader.result;
+                  if (fileReaderResult !== null) {
+                    this.updateImageInHTML(index, fileReader.result as any);
+                    this.updateImageInTextXML(fileReader.result as any, index);
+                    // show delete button if the image is uploaded
+                    images[imageIndex].insertAdjacentElement(
+                      "beforebegin",
+                      button_delete
+                    );
+                  }
+                };
+                fileReader.readAsDataURL(file);
+              }
+            })(e, imageIndex);
+          };
+        });
+      }
+    } else {
+      console.log("Cannot locate shadow root of web-component");
     }
   }
 
