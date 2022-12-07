@@ -134,16 +134,18 @@ export class DemoComponent implements OnInit {
       const images = readAlongRoot.querySelectorAll(".image");
       const imageContainers =
         readAlongRoot.querySelectorAll(".image__container");
+      const buttonStyle = "margin-bottom: 5px";
 
       for (let imageIndex = 0; imageIndex < images.length; imageIndex++) {
+        const buttonsDiv = document.createElement("div");
+        buttonsDiv.style.cssText +=
+          "padding-left: 20px; display: flex; flex-direction: column; align-items: flex-start;";
+
         // delete image button
         const button_delete = document.createElement("button");
         button_delete.innerHTML = "Delete Image";
-        button_delete.style.color = "white";
-        button_delete.style.backgroundColor = "#555555";
-        button_delete.style.borderRadius = "6px";
-        button_delete.style.padding = "15px 32px;";
-        button_delete.style.fontSize = "16px";
+        button_delete.style.cssText += buttonStyle;
+
         button_delete.addEventListener("click", () => {
           let defaultImageUrl = "assets/" + this.whiteImage;
           this.updateImageInHTML(imageIndex, defaultImageUrl);
@@ -154,17 +156,8 @@ export class DemoComponent implements OnInit {
         // upload web url image button
         const button_url = document.createElement("button");
         button_url.innerHTML = "Enter Image URL";
-        button_url.style.color = "white";
-        button_url.style.backgroundColor = "#4CAF50";
-        button_url.style.borderRadius = "6px";
-        button_url.style.padding = "15px 32px;";
-        button_url.style.fontSize = "16px";
-        const buttonURLDiv = document.createElement("div");
-        buttonURLDiv.insertAdjacentElement("afterbegin", button_url);
-        imageContainers[imageIndex].insertAdjacentElement(
-          "afterbegin",
-          buttonURLDiv
-        );
+        button_url.style.cssText += buttonStyle;
+        buttonsDiv.appendChild(button_url);
 
         // add event listener for uploading image from an web url
         button_url.addEventListener("click", () => {
@@ -175,29 +168,18 @@ export class DemoComponent implements OnInit {
             this.updateImageInHTML(imageIndex, imgURL);
             this.updateImageInTextXML(imgURL, imageIndex);
             // show delete button if the image is uploaded
-            images[imageIndex].insertAdjacentElement(
-              "beforebegin",
-              button_delete
-            );
+            buttonsDiv.appendChild(button_delete);
           }
         });
 
         // upload local image button
         const button_upload = document.createElement("button");
-        button_upload.innerHTML = "Choose local image";
-        button_upload.style.color = "white";
-        button_upload.style.backgroundColor = "#008CBA";
-        button_upload.style.borderRadius = "6px";
-        button_upload.style.padding = "15px 32px;";
-        button_upload.style.fontSize = "16px";
+        button_upload.innerHTML = "Upload Image";
+        button_upload.style.cssText += buttonStyle;
+
         const button_local = document.createElement("input");
         button_local.type = "file";
-        const buttonLocalDiv = document.createElement("div");
-        buttonLocalDiv.insertAdjacentElement("afterbegin", button_upload);
-        imageContainers[imageIndex].insertAdjacentElement(
-          "afterbegin",
-          buttonLocalDiv
-        );
+        buttonsDiv.appendChild(button_upload);
 
         // add event listener for uploading local image at button_file button
         button_upload.addEventListener("click", () => {
@@ -221,10 +203,7 @@ export class DemoComponent implements OnInit {
                     this.updateImageInHTML(index, fileReader.result as any);
                     this.updateImageInTextXML(fileReader.result as any, index);
                     // show delete button if the image is uploaded
-                    images[imageIndex].insertAdjacentElement(
-                      "beforebegin",
-                      button_delete
-                    );
+                    buttonsDiv.appendChild(button_delete);
                   }
                 };
                 fileReader.readAsDataURL(file);
@@ -232,6 +211,11 @@ export class DemoComponent implements OnInit {
             })(e, imageIndex);
           };
         });
+
+        imageContainers[imageIndex].insertAdjacentElement(
+          "afterbegin",
+          buttonsDiv
+        );
       }
     } else {
       console.log("Cannot locate shadow root of web-component");
