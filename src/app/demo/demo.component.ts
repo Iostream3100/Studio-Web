@@ -139,6 +139,11 @@ export class DemoComponent implements OnInit {
         // delete image button
         const button_delete = document.createElement("button");
         button_delete.innerHTML = "Delete Image";
+        button_delete.style.color = "white";
+        button_delete.style.backgroundColor = "#555555";
+        button_delete.style.borderRadius = "6px";
+        button_delete.style.padding = "15px 32px;";
+        button_delete.style.fontSize = "16px";
         button_delete.addEventListener("click", () => {
           let defaultImageUrl = "assets/" + this.whiteImage;
           this.updateImageInHTML(imageIndex, defaultImageUrl);
@@ -149,6 +154,11 @@ export class DemoComponent implements OnInit {
         // upload web url image button
         const button_url = document.createElement("button");
         button_url.innerHTML = "Enter Image URL";
+        button_url.style.color = "white";
+        button_url.style.backgroundColor = "#4CAF50";
+        button_url.style.borderRadius = "6px";
+        button_url.style.padding = "15px 32px;";
+        button_url.style.fontSize = "16px";
         const buttonURLDiv = document.createElement("div");
         buttonURLDiv.insertAdjacentElement("afterbegin", button_url);
         imageContainers[imageIndex].insertAdjacentElement(
@@ -173,16 +183,27 @@ export class DemoComponent implements OnInit {
         });
 
         // upload local image button
+        const button_upload = document.createElement("button");
+        button_upload.innerHTML = "Choose local image";
+        button_upload.style.color = "white";
+        button_upload.style.backgroundColor = "#008CBA";
+        button_upload.style.borderRadius = "6px";
+        button_upload.style.padding = "15px 32px;";
+        button_upload.style.fontSize = "16px";
         const button_local = document.createElement("input");
         button_local.type = "file";
         const buttonLocalDiv = document.createElement("div");
-        buttonLocalDiv.insertAdjacentElement("afterbegin", button_local);
+        buttonLocalDiv.insertAdjacentElement("afterbegin", button_upload);
         imageContainers[imageIndex].insertAdjacentElement(
           "afterbegin",
           buttonLocalDiv
         );
 
-        // add event listener for uploading local image
+        // add event listener for uploading local image at button_file button
+        button_upload.addEventListener("click", () => {
+          button_local.click();
+        });
+
         button_local.addEventListener("click", () => {
           button_local.onchange = (e) => {
             // this function is used to pass imageIndex to the event listener
