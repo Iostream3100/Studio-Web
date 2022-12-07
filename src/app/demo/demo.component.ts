@@ -144,25 +144,25 @@ export class DemoComponent implements OnInit {
           "padding-left: 20px; display: flex; flex-direction: column; align-items: flex-start;";
 
         // delete image button
-        const button_delete = document.createElement("button");
-        button_delete.innerHTML = "Delete Image";
-        button_delete.style.cssText += buttonStyle;
+        const deleteImgBtn = document.createElement("button");
+        deleteImgBtn.innerHTML = "Delete Image";
+        deleteImgBtn.style.cssText += buttonStyle;
 
-        button_delete.addEventListener("click", () => {
+        deleteImgBtn.addEventListener("click", () => {
           let defaultImageUrl = "assets/" + this.whiteImage;
           this.updateImageInHTML(imageIndex, defaultImageUrl);
           this.updateImageInTextXML(defaultImageUrl, imageIndex);
-          button_delete.remove();
+          deleteImgBtn.remove();
         });
 
         // upload web url image button
-        const button_url = document.createElement("button");
-        button_url.innerHTML = "Enter Image URL";
-        button_url.style.cssText += buttonStyle;
-        buttonsDiv.appendChild(button_url);
+        const enterImgURLBtn = document.createElement("button");
+        enterImgURLBtn.innerHTML = "Enter Image URL";
+        enterImgURLBtn.style.cssText += buttonStyle;
+        buttonsDiv.appendChild(enterImgURLBtn);
 
         // add event listener for uploading image from an web url
-        button_url.addEventListener("click", () => {
+        enterImgURLBtn.addEventListener("click", () => {
           const currURL = images[imageIndex].getAttribute("src");
           let imgURL = prompt("Please enter image url", currURL ? "" : currURL);
 
@@ -170,26 +170,26 @@ export class DemoComponent implements OnInit {
             this.updateImageInHTML(imageIndex, imgURL);
             this.updateImageInTextXML(imgURL, imageIndex);
             // show delete button if the image is uploaded
-            buttonsDiv.appendChild(button_delete);
+            buttonsDiv.appendChild(deleteImgBtn);
           }
         });
 
         // upload local image button
-        const button_upload = document.createElement("button");
-        button_upload.innerHTML = "Upload Image";
-        button_upload.style.cssText += buttonStyle;
+        const uploadImgBtn = document.createElement("button");
+        uploadImgBtn.innerHTML = "Upload Image";
+        uploadImgBtn.style.cssText += buttonStyle;
 
-        const button_local = document.createElement("input");
-        button_local.type = "file";
-        buttonsDiv.appendChild(button_upload);
+        const fileInputBtn = document.createElement("input");
+        fileInputBtn.type = "file";
+        buttonsDiv.appendChild(uploadImgBtn);
 
         // add event listener for uploading local image at button_file button
-        button_upload.addEventListener("click", () => {
-          button_local.click();
+        uploadImgBtn.addEventListener("click", () => {
+          fileInputBtn.click();
         });
 
-        button_local.addEventListener("click", () => {
-          button_local.onchange = (e) => {
+        fileInputBtn.addEventListener("click", () => {
+          fileInputBtn.onchange = (e) => {
             // this function is used to pass imageIndex to the event listener
             ((event, index) => {
               const files = (event.target as HTMLInputElement).files;
@@ -205,7 +205,7 @@ export class DemoComponent implements OnInit {
                     this.updateImageInHTML(index, fileReader.result as any);
                     this.updateImageInTextXML(fileReader.result as any, index);
                     // show delete button if the image is uploaded
-                    buttonsDiv.appendChild(button_delete);
+                    buttonsDiv.appendChild(deleteImgBtn);
                   }
                 };
                 fileReader.readAsDataURL(file);

@@ -15,7 +15,7 @@
         </div>
 
         <div>
-            <button (click)="updateEditImagesState()">{{this.editImageMode? "Remove Images":"Add Images"}}</button>
+            <button class="btn btn-primary" (click)="updateEditImagesState()">{{this.editImageMode? "Remove Images":"Add Images"}}</button>
         </div>
 
         <div class="row" *ngIf="b64Inputs">
