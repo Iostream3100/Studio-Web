@@ -46,12 +46,13 @@ export class DemoComponent implements OnInit {
    * @param pageIndex?        page index of the image,
    *                          if no pageIndex is given, all pages will be updated.
    * @param deleteEmptyImage  whether to delete the graphic node
-   *                          if url is empty or the default image
+   *                          if existing url is empty or the default image
+   *                          to avoid a broken image in the downloaded HTML file
    */
   updateImageInTextXML(
     url: string,
     pageIndex?: number,
-    deleteEmptyImage: boolean = true
+    deleteEmptyImage: boolean = false
   ) {
     // decode text XML from base64 format
     const textXML = this.b64Service.b64_to_utf8(
@@ -82,14 +83,15 @@ export class DemoComponent implements OnInit {
       }
 
       graphic = page.querySelector("graphic");
-
-      if (deleteEmptyImage) {
-        // If url is empty or the default white image,
+      const lastURL = graphic?.getAttribute("url");
+      if (url.length > 0) {
+        graphic?.setAttribute("url", url);
+      } else if (deleteEmptyImage) {
+        // If last url is empty or the default white image,
         // remove the graphic node to avoid a broken image in the downloaded HTML file
-        if (url == null || url.length == 0 || url.includes(this.whiteImage)) {
+        if (lastURL == null || lastURL.includes(this.whiteImage)) {
           graphic?.parentNode?.removeChild(graphic);
-        } else {
-          graphic?.setAttribute("url", url);
+          console.log("graphic removed");
         }
       }
     }
@@ -118,8 +120,8 @@ export class DemoComponent implements OnInit {
         this.displayImageContainers(true);
       } else {
         this.displayImageContainers(false);
-        // delete all graphics node in text XML
-        this.updateImageInTextXML("", undefined, true);
+        // set the url of graphics node to default
+        this.updateImageInTextXML("assets/" + this.whiteImage, undefined);
       }
     }
   }
@@ -253,6 +255,9 @@ export class DemoComponent implements OnInit {
   }
 
   download() {
+    // delete empty image in text XML to avoid broken images.
+    this.updateImageInTextXML("", undefined, true);
+
     var element = document.createElement("a");
     let blob = new Blob(
       [
