@@ -17,7 +17,9 @@
         <div>
             <button class="btn btn-primary" (click)="updateEditImagesState()">{{this.editImageMode? "Remove Images":"Add Images"}}</button>
         </div>
-
+        
+        <button #btn type="button" class="btn btn-primary" (click)="addTranslationLine(); btn.disabled = true;">Add translation lines</button>
+        
         <div class="row" *ngIf="b64Inputs">
             <read-along text="{{b64Inputs[1]}}" alignment="{{b64Inputs[2] }}" audio="{{b64Inputs[0]}}" class="hydrated">
                 <span #title (blur)="slots.title=title.innerText" contentEditable="true" slot="read-along-header">{{ slots.title }}</span>

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { B64Service } from "../b64.service";
-import { FormBuilder } from "@angular/forms";
+import { Title } from "@angular/platform-browser";
 
 @Component({
   selector: "app-demo",
@@ -15,8 +15,10 @@ export class DemoComponent implements OnInit {
   initAddImagesButton: boolean = false;
   editImageMode: boolean = false;
 
-  constructor(private b64Service: B64Service) {}
-
+  constructor(public titleService: Title, public b64Service: B64Service) {
+    titleService.setTitle(this.slots.pageTitle);
+  }
+  
   ngOnInit(): void {
     // initialize the graphic node in text XML in each page
     // to let web-component render image-container and image with the blank white image
@@ -254,9 +256,71 @@ export class DemoComponent implements OnInit {
     }
   }
 
+  // click botton btn just once
+  clicked = false;
+
+  // addTranslationLine is called when the user clicks the "Add Translation" button
+  addTranslationLine(): void {
+    // @ts-ignore
+    const readalongRoot: any = document.querySelector("read-along").shadowRoot;
+    const sentences = readalongRoot.querySelectorAll(".sentence");
+    sentences.forEach((sentence: any) => {
+      const innerbutton = document.createElement("button");
+      innerbutton.innerHTML = "Add Translation";
+      innerbutton.addEventListener("click", () => {
+        sentence.insertAdjacentHTML(
+          "beforeend",
+          '<br><span class = "translation" contenteditable = True>Translation</span>'
+        );
+        innerbutton.remove();
+      });
+      sentence.insertAdjacentElement("afterend", innerbutton);
+    });
+  }
+
+  //pass all sentences to b64Inputs[1]
+  updateTextXML(): void {
+    // @ts-ignore
+    const readalongRoot: any = document.querySelector("read-along").shadowRoot;
+    if (readalongRoot == null) {
+      return;
+    }
+    const translation = readalongRoot.querySelectorAll(".translation");
+    var textXML = this.b64Service.b64_to_utf8(
+      this.b64Inputs[1].substring(this.b64Inputs[1].indexOf(",") + 1)
+    );
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(textXML, "application/xml");
+    // if translation class exist, delete it
+    if (doc.querySelector(".translation") != null) {
+      doc.querySelectorAll(".translation").forEach((node) => {
+        node.remove();
+      });
+    }
+    const ss = doc.querySelectorAll("s");
+    let count = 0;
+    ss.forEach((tag_s) => {
+      tag_s.insertAdjacentHTML(
+        "afterend",
+        `<span class="translation" contenteditable="true">${translation[count].innerHTML}</span>`
+      );
+      count++;
+    });
+
+    const serializer = new XMLSerializer();
+    const xmlStr = serializer.serializeToString(doc);
+    this.b64Inputs[1] =
+      this.b64Inputs[1].slice(0, this.b64Inputs[1].indexOf(",") + 1) +
+      this.b64Service.utf8_to_b64(xmlStr);
+  }
+
   download() {
     // delete empty image in text XML to avoid broken images.
     this.updateImageInTextXML("", undefined, true);
+
+    // recall updatetextXML()
+    this.updateTextXML();
 
     var element = document.createElement("a");
     let blob = new Blob(
