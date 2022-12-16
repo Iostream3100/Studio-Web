@@ -1,7 +1,8 @@
 # ReadAlong-Studio Web
 
-## [Video Demo](https://www.youtube.com/watch?v=hloCmRYosBo&t=12s)
-## [Project Slides](https://docs.google.com/presentation/d/1J8Y0X22uPSwzYvzuZYNYeMNpYhkS8iVQsZf34H2Vj90/edit?usp=sharing)
+### [Video Demo](https://www.youtube.com/watch?v=hloCmRYosBo&t=12s)
+ 
+### [Project Slides](https://docs.google.com/presentation/d/1J8Y0X22uPSwzYvzuZYNYeMNpYhkS8iVQsZf34H2Vj90/edit?usp=sharing)
 
 [![Build Status](https://github.com/readalongs/Studio-Web/actions/workflows/publish.yml/badge.svg?branch=main)](https://github.com/ReadAlongs/Studio-Web/actions)
 [![GitHub license](https://img.shields.io/github/license/ReadAlongs/Studio-Web)](https://github.com/ReadAlongs/Studio-Web/blob/master/LICENSE)
